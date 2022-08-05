@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using KModkit;
+using System.Text.RegularExpressions;
 
 public class MissionControl : MonoBehaviour {
     public KMAudio Audio;
@@ -276,17 +276,67 @@ public class MissionControl : MonoBehaviour {
     private void Solve() {
         Debug.LogFormat("[Mission Control #{0}] Module solved!", moduleId);
         moduleSolved = true;
-        GetComponent<KMBombModule>().HandlePass();
+        Module.HandlePass();
     }
 
     // Module strikes
     private void Strike() {
         Debug.LogFormat("[Mission Control #{0}] Strike!", moduleId);
-        GetComponent<KMBombModule>().HandleStrike();
+        Module.HandleStrike();
     }
 
-
-#pragma warning disable 414
+    // Variable set by Tweaks for Zen mode detection
+    #pragma warning disable 414
     private bool ZenModeActive;
-#pragma warning restore 414
+    #pragma warning restore 414
+
+    // Twitch Plays command handler - by eXish
+    #pragma warning disable 414
+    private readonly string TwitchHelpMessage = @"!{0} press <##> [Presses the button when the seconds digits of the bomb's timer are '##']";
+    #pragma warning restore 414
+    IEnumerator ProcessTwitchCommand(string command)
+    {
+        string[] parameters = command.Split(' ');
+        if (Regex.IsMatch(parameters[0], @"^\s*press\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        {
+            if (parameters.Length == 1)
+                yield return "sendtochaterror Please specify when to press the button!";
+            else if (parameters.Length > 2)
+                yield return "sendtochaterror Too many parameters!";
+            else
+            {
+                int time = -1;
+                if (!int.TryParse(parameters[1], out time))
+                {
+                    yield return "sendtochaterror!f The specified seconds digits '" + parameters[1] + "' are invalid!";
+                    yield break;
+                }
+                if (time < 0 || time > 59)
+                {
+                    yield return "sendtochaterror The specified seconds digits '" + parameters[1] + "' are invalid!";
+                    yield break;
+                }
+                if (parameters[1].Length < 2)
+                {
+                    yield return "sendtochaterror The specified seconds digits '" + parameters[1] + "' are invalid!";
+                    yield break;
+                }
+                if (!canPressButton)
+                {
+                    yield return "sendtochaterror The button cannot be pressed yet!";
+                    yield break;
+                }
+                yield return null;
+                while (time != Math.Floor(Bomb.GetTime()) % 60) yield return "trycancel Halted waiting to press the button due to a cancel request.";
+                ButtonSelectable.OnInteract();
+            }
+        }
+    }
+
+    // Twitch Plays autosolver - by eXish
+    IEnumerator TwitchHandleForcedSolve()
+    {
+        while ((Bomb.GetSerialNumberNumbers().Sum() != Math.Floor(Bomb.GetTime()) % 60) || !canPressButton) yield return true;
+        ButtonSelectable.OnInteract();
+    }
 }
