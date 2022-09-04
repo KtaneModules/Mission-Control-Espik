@@ -15,6 +15,12 @@ public class MissionControl : MonoBehaviour {
     public TextMesh ButtonText;
     public Transform ButtonTransform;
 
+    // From Mystery Module
+    public GameObject[] Cover;
+    public GameObject[] PivotRight;
+    public GameObject[] PivotLeft;
+
+
     // Logging info
     private static int moduleIdCounter = 1;
     private int moduleId;
@@ -34,6 +40,7 @@ public class MissionControl : MonoBehaviour {
     /* 1: Dead End (Big)
      * 2: Dead End (Small)
      * 3: Disconnected
+     * 4: Wish
      */
 
     // Mission specific variables
@@ -45,11 +52,25 @@ public class MissionControl : MonoBehaviour {
 
     private float currentSecond = 0.0f;
 
+
+    private readonly int[] WISH_THRESHOLDS = { 13, 26, 33, 41, 49, 59, 65, 71, 78, 83, 88, 93 };
+    private readonly string[] WISH_MODULES = { "notX01", "deceptiveRainbowArrowsModule", "cube", "ChaoticCountdownModule", "whiteCipher", 
+        "blackCipher", "bamboozlingButton", "TripleTraversalModule", "rgbMaze", "perceptron" };
+    private readonly string[] WISH_HARD_MODULES = { "EncryptionLingoModule", "WalkingCubeModule" };
+
+    private int buttonPresses = 0;
+    private readonly float TIME_LOSS = 0.1f; // 10%
+
+    private KMBombModule[] mystifiedModule = new KMBombModule[12];
+    private Vector3[] mystifyScale = new Vector3[12];
+
+    // Mod settings
     private MissionControlSettings Settings;
 
     sealed class MissionControlSettings {
         public bool IntroSound = true;
     }
+
 
     // Ran as bomb loads
     private void Awake() {
@@ -91,7 +112,128 @@ public class MissionControl : MonoBehaviour {
             missionFound = true;
             mode = 3;
             break;
+
+        case "mod_ktane_EspikHardMissions_wish": // Wish
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Wish\"", moduleId);
+            missionFound = true;
+            mode = 4;
+            StartCoroutine(HideWishModules());
+            break;
         }
+    }
+
+
+    // Finds and covers the modules for Wish
+    private IEnumerator HideWishModules() {
+        int modulesLeft = 10;
+        int hardModulesLeft = 2;
+
+        int[] indecies = new int[10];
+        for (int i = 0; i < indecies.Length; i++)
+            indecies[i] = i;
+
+        int[] hardIndecies = { 10, 11 };
+
+        // Code from Mystery Module
+        for (int i = 0; i < transform.parent.childCount; i++) {
+            var module = transform.parent.GetChild(i).gameObject.GetComponent<KMBombModule>();
+            if (module == null)
+                continue;
+
+            // First set of Wish modules
+            if (modulesLeft > 0) {
+                foreach (string name in WISH_MODULES) {
+                    if (module.ModuleType == name) {
+                        int rand = UnityEngine.Random.Range(0, modulesLeft);
+                        mystifiedModule[indecies[rand]] = module;
+                        StartCoroutine(CoverModule(indecies[rand]));
+
+                        modulesLeft--;
+                        for (int j = rand; j < modulesLeft; j++) {
+                            indecies[j] = indecies[j + 1];
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // Second set of Wish modules
+            if (hardModulesLeft > 0) {
+                foreach (string name in WISH_HARD_MODULES) {
+                    if (module.ModuleType == name) {
+                        int rand = UnityEngine.Random.Range(0, hardModulesLeft);
+                        mystifiedModule[hardIndecies[rand]] = module;
+                        StartCoroutine(CoverModule(hardIndecies[rand]));
+
+                        hardModulesLeft--;
+                        for (int j = rand; j < hardModulesLeft; j++) {
+                            hardIndecies[j] = hardIndecies[j + 1];
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        yield return null;
+    }
+
+    // Covers a module for Wish
+    private IEnumerator CoverModule(int num) {
+        // Code from Mystery Module
+        Debug.LogFormat(@"[Mission Control #{0}] Hiding module: {1}", moduleId, mystifiedModule[num].ModuleDisplayName);
+
+        Cover[num].SetActive(true);
+        var mysPos = mystifiedModule[num].transform.localPosition;
+        Cover[num].transform.parent = mystifiedModule[num].transform.parent;
+
+        var scale = new Vector3(.95f, .95f, .95f);
+        Cover[num].transform.localScale = scale;
+        Cover[num].transform.rotation = mystifiedModule[num].transform.rotation;
+        if (Cover[num].transform.rotation == new Quaternion(0f, 0f, 1f, 0f))
+            Cover[num].transform.localPosition = new Vector3(mysPos.x, mysPos.y - 0.02f, mysPos.z);
+        else
+            Cover[num].transform.localPosition = new Vector3(mysPos.x, mysPos.y + 0.02f, mysPos.z);
+        Debug.LogFormat(@"<Mission Control #{0}> Rotation: {1}", moduleId, Cover[num].transform.rotation);
+        yield return null;
+        Cover[num].transform.parent = transform.parent;
+
+        /*MethodInfo mth;
+        foreach (var component in mystifiedModule[num].gameObject.GetComponents<MonoBehaviour>())
+            if ((mth = component.GetType().GetMethod("MysteryModuleHiding", BindingFlags.Public | BindingFlags.Instance)) != null) {
+                if (mth.GetParameters().Select(p => p.ParameterType).SequenceEqual(new[] { typeof(KMBombModule[]) }))
+                    mth.Invoke(component, new object[] { keyModules.ToArray() });
+                else if (mth.GetParameters().Length == 0)
+                    mth.Invoke(component, null);
+            }*/
+
+        mystifyScale[num] = mystifiedModule[num].transform.localScale;
+        mystifiedModule[num].transform.localScale = new Vector3(0, 0, 0);
+        yield return null;
+    }
+
+    // Reveals a module for Wish
+    private IEnumerator RevealWishModule(int num) {
+        // Code from Mystery Module
+        Debug.LogFormat(@"[Mission Control #{0}] Revealing module: {1}", moduleId, mystifiedModule[num].ModuleDisplayName);
+
+        /*MethodInfo mth;
+        foreach (var component in mystifiedModule[num].gameObject.GetComponents<MonoBehaviour>())
+            if ((mth = component.GetType().GetMethod("MysteryModuleRevealing", BindingFlags.Public | BindingFlags.Instance)) != null && mth.GetParameters().Length == 0)
+                mth.Invoke(component, null);*/
+
+        var duration = 2.0f;
+        var elapsed = 0.0f;
+        while (elapsed < duration) {
+            yield return null;
+            elapsed += Time.deltaTime;
+            mystifiedModule[num].transform.localScale = Vector3.Lerp(new Vector3(0.0f, 0.0f, 0.0f), mystifyScale[num], elapsed / duration);
+            PivotRight[num].transform.localEulerAngles = new Vector3(0.0f, 0.0f, -90.0f * elapsed / duration);
+            PivotLeft[num].transform.localEulerAngles = new Vector3(0.0f, 0.0f, 90.0f * elapsed / duration);
+        }
+        mystifiedModule[num].transform.localScale = mystifyScale[num];
+        Destroy(Cover[num]);
+        yield return null;
     }
 
 
@@ -258,8 +400,30 @@ public class MissionControl : MonoBehaviour {
     private void ButtonPressed() {
         ButtonSelectable.AddInteractionPunch(0.5f);
 
-        // Unmodified time
-        if (canPressButton && !moduleSolved) {
+        // Wish
+        if (mode == 4 && canPressButton && !moduleSolved) {
+            canPressButton = false;
+            Audio.PlaySoundAtTransform("missionControl_buttonPress", transform);
+            Debug.LogFormat("[Mission Control #{0}] You pressed the button. Total presses: {1}", moduleId, buttonPresses + 1);
+
+            StartCoroutine(RevealWishModule(buttonPresses));
+            if (WISH_THRESHOLDS[buttonPresses] > Bomb.GetSolvedModuleNames().Count()) {
+                Audio.PlaySoundAtTransform("missionControl_badChime", transform);
+                TimeRemaining.FromModule(Module, Bomb.GetTime() * (1.0f - TIME_LOSS));
+            }
+
+            else
+                Audio.PlaySoundAtTransform("missionControl_goodChime", transform);
+
+            buttonPresses++;
+            if (buttonPresses >= WISH_THRESHOLDS.Length)
+                Solve();
+
+            canPressButton = true;
+        }
+
+        // Unmodified rules
+        else if (canPressButton && !moduleSolved) {
             Audio.PlaySoundAtTransform("missionControl_buttonPress", transform);
             Debug.LogFormat("[Mission Control #{0}] Button pressed at {1}.", moduleId, Bomb.GetFormattedTime());
 
@@ -284,6 +448,7 @@ public class MissionControl : MonoBehaviour {
         Debug.LogFormat("[Mission Control #{0}] Strike!", moduleId);
         Module.HandleStrike();
     }
+
 
     // Variable set by Tweaks for Zen mode detection
     #pragma warning disable 414
