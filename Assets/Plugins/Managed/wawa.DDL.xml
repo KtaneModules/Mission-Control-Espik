@@ -1,0 +1,261 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>wawa.DDL</name>
+    </assembly>
+    <members>
+        <member name="T:System.ValueTuple`2">
+            <summary>Represents a 2-tuple, or pair, as a value type.</summary>
+            <typeparam name="T1">The type of the tuple's first component.</typeparam>
+            <typeparam name="T2">The type of the tuple's second component.</typeparam>
+        </member>
+        <member name="F:System.ValueTuple`2.Item1">
+            <summary>The current <see cref="T:System.ValueTuple`2"/> instance's first component.</summary>
+        </member>
+        <member name="F:System.ValueTuple`2.Item2">
+            <summary>The current <see cref="T:System.ValueTuple`2"/> instance's second component.</summary>
+        </member>
+        <member name="M:System.ValueTuple`2.#ctor(`0,`1)">
+            <summary>Initializes a new instance of the <see cref="T:System.ValueTuple`2"/> struct.</summary>
+            <param name="item1">The value of the tuple's first component.</param>
+            <param name="item2">The value of the tuple's second component.</param>
+        </member>
+        <member name="M:System.ValueTuple`2.op_Equality(System.ValueTuple{`0,`1},System.ValueTuple{`0,`1})">
+            <summary>Determines whether both instances contain the same values.</summary>
+            <param name="left">The left-hand side.</param>
+            <param name="right">The right-hand side.</param>
+            <returns>
+            The value <see langword="true" /> if both instances contain the same values,
+            otherwise <see langword="false" />.
+            </returns>
+        </member>
+        <member name="M:System.ValueTuple`2.op_Inequality(System.ValueTuple{`0,`1},System.ValueTuple{`0,`1})">
+            <summary>Determines whether both instances contain different values.</summary>
+            <param name="left">The left-hand side.</param>
+            <param name="right">The right-hand side.</param>
+            <returns>
+            The value <see langword="true" /> if both instances contain different values,
+            otherwise <see langword="false" />.
+            </returns>
+        </member>
+        <member name="M:System.ValueTuple`2.op_LessThan(System.ValueTuple{`0,`1},System.ValueTuple{`0,`1})">
+            <summary>Determines whether the right instance is greater than the left.</summary>
+            <param name="left">The left-hand side.</param>
+            <param name="right">The right-hand side.</param>
+            <returns>
+            The value <see langword="true" /> if <paramref name="right"/> is greater than <paramref name="left"/>,
+            otherwise <see langword="false" />.
+            </returns>
+        </member>
+        <member name="M:System.ValueTuple`2.op_GreaterThan(System.ValueTuple{`0,`1},System.ValueTuple{`0,`1})">
+            <summary>Determines whether the right instance is less than the left.</summary>
+            <param name="left">The left-hand side.</param>
+            <param name="right">The right-hand side.</param>
+            <returns>
+            The value <see langword="true" /> if <paramref name="right"/> is less than <paramref name="left"/>,
+            otherwise <see langword="false" />.
+            </returns>
+        </member>
+        <member name="M:System.ValueTuple`2.op_LessThanOrEqual(System.ValueTuple{`0,`1},System.ValueTuple{`0,`1})">
+            <summary>Determines whether the right instance is greater or equal than the left.</summary>
+            <param name="left">The left-hand side.</param>
+            <param name="right">The right-hand side.</param>
+            <returns>
+            The value <see langword="true" /> if <paramref name="right"/> is greater or equal than <paramref name="left"/>,
+            otherwise <see langword="false" />.
+            </returns>
+        </member>
+        <member name="M:System.ValueTuple`2.op_GreaterThanOrEqual(System.ValueTuple{`0,`1},System.ValueTuple{`0,`1})">
+            <summary>Determines whether the right instance is less or equal than the left.</summary>
+            <param name="left">The left-hand side.</param>
+            <param name="right">The right-hand side.</param>
+            <returns>
+            The value <see langword="true" /> if <paramref name="right"/> is less or equal than <paramref name="left"/>,
+            otherwise <see langword="false" />.
+            </returns>
+        </member>
+        <member name="M:System.ValueTuple`2.Equals(System.Object)">
+            <summary>
+            Returns a value that indicates whether the current <see cref="T:System.ValueTuple`2"/>
+            instance is equal to a specified object.
+            </summary>
+            <param name="obj">The object to compare with this instance.</param>
+            <returns>
+            <see langword="true"/> if the current instance is equal to the
+            specified object; otherwise, <see langword="false"/>.
+            </returns>
+            <remarks>
+            <para>
+            The <paramref name="obj"/> parameter is considered to be equal
+            to the current instance under the following conditions:
+            </para>
+            <list type="bullet">
+            <item><description>It is a <see cref="T:System.ValueTuple`2"/> value type.</description></item>
+            <item><description>Its components are of the same types as those of the current instance.</description></item>
+            <item><description>
+            Its components are equal to those of the current instance.
+            Equality is determine by the default object equality comparer for each component.
+            </description></item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:System.ValueTuple`2.Equals(System.ValueTuple{`0,`1})">
+            <summary>
+            Returns a value that indicates whether the current <see cref="T:System.ValueTuple`2"/> instance is equal to a specified <see cref="T:System.ValueTuple`2"/>.
+            </summary>
+            <remarks><para>
+            The <paramref name="other"/> parameter is considered to be equal to the current instance if each of its fields
+            are equal to that of the current instance, using the default comparer for that field's type.
+            </para></remarks>
+            <param name="other">The tuple to compare with this instance.</param>
+            <returns>
+            <see langword="true"/> if the current instance is equal to the specified tuple; otherwise, <see langword="false"/>.
+            </returns>
+        </member>
+        <member name="M:System.ValueTuple`2.System#IComparable#CompareTo(System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="M:System.ValueTuple`2.CompareTo(System.ValueTuple{`0,`1})">
+            <summary>Compares this instance to a specified instance and returns an indication of their relative values.</summary>
+            <param name="other">An instance to compare.</param>
+            <returns>
+            A signed number indicating the relative values of this instance and <paramref name="other"/>.
+            Returns less than zero if this instance is less than <paramref name="other"/>, zero if this
+            instance is equal to <paramref name="other"/>, and greater than zero if this instance is greater
+            than <paramref name="other"/>.
+            </returns>
+        </member>
+        <member name="M:System.ValueTuple`2.GetHashCode">
+            <summary>Returns the hash code for the current <see cref="T:System.ValueTuple`2"/> instance.</summary>
+            <returns>A 32-bit signed integer hash code.</returns>
+        </member>
+        <member name="M:System.ValueTuple`2.ToString">
+            <summary>Returns a string that represents the value of this <see cref="T:System.ValueTuple`2"/> instance.</summary>
+            <returns>The string representation of this <see cref="T:System.ValueTuple`2"/> instance.</returns>
+            <remarks><para>
+            The string returned by this method takes the form <c>(Item1, Item2)</c>,
+            where <see cref="F:System.ValueTuple`2.Item1"/> and <see cref="F:System.ValueTuple`2.Item2"/> represent the values of the <see cref="F:System.ValueTuple`2.Item1"/>
+            and <see cref="F:System.ValueTuple`2.Item2"/> fields. If either field value is <see langword="null"/>,
+            it is represented as <see cref="F:System.String.Empty"/>.
+            </para></remarks>
+        </member>
+        <member name="T:Wawa.DDL.Access">
+            <summary>A class for accessing things from the game.</summary>
+        </member>
+        <member name="P:Wawa.DDL.Access.IsKtane">
+            <summary>Gets a value indicating whether the runtime is in-game.</summary>
+            <remarks><para>Opposite of <see cref="P:UnityEngine.Application.isEditor"/>, but as a pure getter.</para></remarks>
+        </member>
+        <member name="M:Wawa.DDL.Access.FromGame``2(``0,System.Func{``0,``1},``1)">
+            <summary>Method for obtaining something from the game, ensuring that the Unity editor stays happy.</summary>
+            <typeparam name="T">The context item, be sure that this doesn't come from the game.</typeparam>
+            <typeparam name="TResult">The type of the return, be sure that this doesn't come from the game.</typeparam>
+            <param name="context">The context element to pass into the callback.</param>
+            <param name="factory">The factory containing the game data.</param>
+            <param name="def">The default value.</param>
+            <returns>The value from <paramref name="factory"/>, or <see langword="default" />.</returns>
+        </member>
+        <member name="T:Wawa.DDL.KMBombStrikeExtensions">
+            <summary>Allows a <see cref="T:KMBomb"/> to control strikes.</summary>
+        </member>
+        <member name="M:Wawa.DDL.KMBombStrikeExtensions.GetStrikes(KMBomb)">
+            <summary>Gets the number of strikes.</summary>
+            <remarks><para>In the editor, this value always returns 0.</para></remarks>
+            <param name="that">The <see cref="T:KMBomb"/> module instance to grab strikes from.</param>
+            <returns>The number of strikes.</returns>
+        </member>
+        <member name="M:Wawa.DDL.KMBombStrikeExtensions.SetStrikes(KMBomb,System.Int32)">
+            <summary>Sets the number of strikes.</summary>
+            <remarks><para>In the editor, this method does nothing.</para></remarks>
+            <param name="that">The <see cref="T:KMBomb"/> module instance to grab strikes from.</param>
+            <param name="value">The value to set it to.</param>
+            <returns>The parameter <see cref="T:KMBomb"/>.</returns>
+        </member>
+        <member name="T:Wawa.DDL.Lookup">
+            <summary>Allows for querying general data from the game.</summary>
+        </member>
+        <member name="P:Wawa.DDL.Lookup.Mods">
+            <summary>Gets the dictionary of loaded mods.</summary>
+            <remarks><para>
+            In the editor, this value returns an instance of <see cref="T:System.Collections.Hashtable"/>, initialized as empty.
+            </para></remarks>
+        </member>
+        <member name="M:Wawa.DDL.Lookup.Localized(System.String)">
+            <summary>Gets the localized value of a <see cref="T:System.String"/> term.</summary>
+            <remarks><para>In the editor, this value returns <see cref="M:Emik.Optionals.Maybe.None``1"/>.</para></remarks>
+            <param name="term">The term to get the localized <see cref="T:System.String"/> of.</param>
+            <returns>The localized <see cref="T:System.String"/> of <paramref name="term"/>.</returns>
+        </member>
+        <member name="T:Wawa.DDL.Missions">
+            <summary>Allows access into current mission metadata.</summary>
+        </member>
+        <member name="F:Wawa.DDL.Missions.ExampleDescription">
+            <summary>The default value for the respective property.</summary>
+        </member>
+        <member name="F:Wawa.DDL.Missions.ExampleId">
+            <summary>The default value for the respective property.</summary>
+        </member>
+        <member name="F:Wawa.DDL.Missions.ExampleLanguageCode">
+            <summary>The default value for the respective property.</summary>
+        </member>
+        <member name="F:Wawa.DDL.Missions.ExampleName">
+            <summary>The default value for the respective property.</summary>
+        </member>
+        <member name="P:Wawa.DDL.Missions.IsPacingEvents">
+            <summary>Gets or sets a value indicating whether pacing events are enabled.</summary>
+            <remarks><para>In the editor, this returns <see keyword="false"/>.</para></remarks>
+        </member>
+        <member name="P:Wawa.DDL.Missions.Description">
+            <summary>Gets the description as it appears in the bomb binder.</summary>
+            <remarks><para>In the editor, this returns <see cref="F:Wawa.DDL.Missions.ExampleDescription"/>.</para></remarks>
+        </member>
+        <member name="P:Wawa.DDL.Missions.Id">
+            <summary>Gets the ID of the mission.</summary>
+            <remarks><para>In the editor, this returns <see cref="F:Wawa.DDL.Missions.ExampleId"/>.</para></remarks>
+        </member>
+        <member name="P:Wawa.DDL.Missions.LanguageCode">
+            <summary>Gets the current language code.</summary>
+            <remarks><para>In the editor, this returns <see cref="F:Wawa.DDL.Missions.ExampleLanguageCode"/>.</para></remarks>
+        </member>
+        <member name="P:Wawa.DDL.Missions.Name">
+            <summary>Gets the mission name as it appears in the bomb binder.</summary>
+            <remarks><para>In the editor, this returns <see cref="F:Wawa.DDL.Missions.ExampleName"/>.</para></remarks>
+        </member>
+        <member name="T:Wawa.DDL.Preferences">
+            <summary>Allows access into current user preferences.</summary>
+        </member>
+        <member name="F:Wawa.DDL.Preferences.MaxVolume">
+            <summary>The maximum volume allowed by the game and default value for the respective properties.</summary>
+        </member>
+        <member name="P:Wawa.DDL.Preferences.IsVR">
+            <summary>Gets a value indicating whether the game is being played on VR.</summary>
+            <remarks><para>In the editor, this value always returns <see langword="false"/>.</para></remarks>
+        </member>
+        <member name="P:Wawa.DDL.Preferences.Music">
+            <summary>Gets or sets the current music volume from the dossier menu. Ranges 0 to 100.</summary>
+            <remarks><para>In the editor, this returns <see cref="F:Wawa.DDL.Preferences.MaxVolume"/>.</para></remarks>
+        </member>
+        <member name="P:Wawa.DDL.Preferences.Sound">
+            <summary>Gets or sets the current sound effect volume from the dossier menu. Ranges 0 to 100.</summary>
+            <remarks><para>In the editor, this returns <see cref="F:Wawa.DDL.Preferences.MaxVolume"/>.</para></remarks>
+        </member>
+        <member name="T:JetBrains.Annotations.RequireStaticDelegateAttribute">
+            <summary>
+            This annotation allows to enforce allocation-less usage patterns of delegates for performance-critical APIs.
+            When this annotation is applied to the parameter of delegate type, IDE checks the input argument of this parameter:
+            * When lambda expression or anonymous method is passed as an argument, IDE verifies that the passed closure
+              has no captures of the containing local variables and the compiler is able to cache the delegate instance
+              to avoid heap allocations. Otherwise the warning is produced.
+            * IDE warns when method name or local function name is passed as an argument as this always results
+              in heap allocation of the delegate instance.
+            </summary>
+            <remarks><para>
+            In C# 9.0 code IDE would also suggest to annotate the anonymous function with 'static' modifier
+            to make use of the similar analysis provided by the language/compiler.
+            </para></remarks>
+        </member>
+        <member name="P:JetBrains.Annotations.RequireStaticDelegateAttribute.IsError">
+            <summary>Gets or sets a value indicating whether a violation of this rule should raise an error.</summary>
+        </member>
+    </members>
+</doc>

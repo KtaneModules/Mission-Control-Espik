@@ -1,0 +1,317 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Emik.Optionals</name>
+    </assembly>
+    <members>
+        <member name="T:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute">
+            <summary>
+            Specifies that the method or property will ensure that the listed field and property members have not-null values
+            when returning with the specified return value condition.
+            </summary>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.#ctor(System.Boolean,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute"/> class
+            with the specified return value condition and a field or property member.
+            </summary>
+            <param name="returnValue">
+            The return value condition. If the method returns this value, the associated parameter will not be null.
+            </param>
+            <param name="member">The field or property member that is promised to be not-null.</param>
+        </member>
+        <member name="M:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.#ctor(System.Boolean,System.String[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute"/> class
+            with the specified return value condition and list of field and property members.
+            </summary>
+            <param name="returnValue">
+            The return value condition. If the method returns this value, the associated parameter will not be null.
+            </param>
+            <param name="members">The list of field and property members that are promised to be not-null.</param>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.ReturnValue">
+            <summary>
+            Gets a value indicating whether the return value condition is <see langword="true"/> or <see langword="false"/>.
+            </summary>
+        </member>
+        <member name="P:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute.Members">
+            <summary>Gets field or property member names.</summary>
+        </member>
+        <member name="T:Emik.Optionals.Maybe">
+            <summary>Implementations for <see cref="T:Emik.Optionals.Maybe`1"/>.</summary>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.TryGet``1(Emik.Optionals.Maybe{``0},``0@)">
+            <summary>Assigns a value with the inner value, or a <see langword="default"/> value if none exists.</summary>
+            <typeparam name="T">The generic type argument in <see cref="T:Emik.Optionals.Maybe`1"/>.</typeparam>
+            <param name="that">This instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</param>
+            <param name="result">The resulting value, or <see langword="default"/>.</param>
+            <returns>
+            The value <see langword="true"/> if <paramref name="that"/> contains a value, otherwise <see langword="false"/>.
+            </returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.None``1">
+            <summary>Gets an empty <see cref="T:Emik.Optionals.Maybe`1"/> of the desired type.</summary>
+            <typeparam name="T">The generic in <see cref="T:Emik.Optionals.Maybe`1"/>.</typeparam>
+            <returns>
+            A <see cref="T:Emik.Optionals.Maybe`1"/> that always has <see cref="P:Emik.Optionals.Maybe`1.IsNone"/>
+            <see langword="return"/> <see langword="true"/>.
+            </returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.Match``1(Emik.Optionals.Maybe{``0},System.Action{``0},System.Action{Emik.Optionals.Unit})">
+            <summary>Uses the callback corresponding to the inner value of <paramref name="that"/>.</summary>
+            <typeparam name="T">The type of value stored within <paramref name="that"/>.</typeparam>
+            <param name="that">This instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</param>
+            <param name="some">The callback to run if <see cref="P:Emik.Optionals.Maybe`1.IsSome"/> is <see langword="true"/>.</param>
+            <param name="none">The callback to run if <see cref="P:Emik.Optionals.Maybe`1.IsSome"/> is <see langword="false"/>.</param>
+            <returns>The parameter <paramref name="that"/>.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.Some``1(``0)">
+            <summary>Wraps <typeparamref name="T"/> in a <see cref="T:Emik.Optionals.Maybe`1"/>.</summary>
+            <remarks><para>Value types are the only types that cannot be <see langword="null"/>.</para></remarks>
+            <typeparam name="T">The type of parameter and generic in <see cref="T:Emik.Optionals.Maybe`1"/>.</typeparam>
+            <param name="that">This instance of <typeparamref name="T"/>.</param>
+            <returns>A new instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.GetEnumerator``1(Emik.Optionals.Maybe{``0})">
+            <summary>Gets an iterator that has the value once, or is empty.</summary>
+            <typeparam name="T">The type of parameter and generic in <see cref="T:Emik.Optionals.Maybe`1"/>.</typeparam>
+            <param name="source">This instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</param>
+            <returns>An iterator that yields the inner value once, or <see cref="M:System.Linq.Enumerable.Empty``1"/>.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.Filter``1(System.Collections.Generic.IEnumerable{Emik.Optionals.Maybe{``0}})">
+            <summary>Filters a collection with only that of items with a value.</summary>
+            <typeparam name="T">The type of parameter and generic in <see cref="T:Emik.Optionals.Maybe`1"/>.</typeparam>
+            <param name="source">This collection of <see cref="T:Emik.Optionals.Maybe`1"/>.</param>
+            <returns>A filtered collection only consisting of unwrapped <typeparamref name="T"/> values.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.Flatten``1(Emik.Optionals.Maybe{Emik.Optionals.Maybe{``0}})">
+            <summary>Flattens a nested <see cref="T:Emik.Optionals.Maybe`1"/>.</summary>
+            <typeparam name="T">The type of value stored within <paramref name="that"/>.</typeparam>
+            <param name="that">This instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</param>
+            <returns>The nested <see cref="T:Emik.Optionals.Maybe`1"/>, or <see langword="default"/>.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.Flatten``1(Emik.Optionals.Maybe{Emik.Optionals.Maybe{Emik.Optionals.Maybe{``0}}})">
+            <summary>Flattens a nested <see cref="T:Emik.Optionals.Maybe`1"/>.</summary>
+            <typeparam name="T">The type of value stored within <paramref name="that"/>.</typeparam>
+            <param name="that">This instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</param>
+            <returns>The nested <see cref="T:Emik.Optionals.Maybe`1"/>, or <see langword="default"/>.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.Flatten``1(Emik.Optionals.Maybe{Emik.Optionals.Maybe{Emik.Optionals.Maybe{Emik.Optionals.Maybe{``0}}}})">
+            <summary>Flattens a nested <see cref="T:Emik.Optionals.Maybe`1"/>.</summary>
+            <typeparam name="T">The type of value stored within <paramref name="that"/>.</typeparam>
+            <param name="that">This instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</param>
+            <returns>The nested <see cref="T:Emik.Optionals.Maybe`1"/>, or <see langword="default"/>.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.From``1(``0)">
+            <summary>Wraps <typeparamref name="T"/> in a <see cref="T:Emik.Optionals.Maybe`1"/>.</summary>
+            <typeparam name="T">The type of parameter and generic in <see cref="T:Emik.Optionals.Maybe`1"/>.</typeparam>
+            <param name="that">This instance of <typeparamref name="T"/>.</param>
+            <returns>A new instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.From``1(System.Nullable{``0})">
+            <summary>Wraps <typeparamref name="T"/> in a <see cref="T:Emik.Optionals.Maybe`1"/>.</summary>
+            <typeparam name="T">The type of parameter and generic in <see cref="T:Emik.Optionals.Maybe`1"/>.</typeparam>
+            <param name="that">This instance of <typeparamref name="T"/>.</param>
+            <returns>A new instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.ToMaybe``1(System.Nullable{``0})">
+            <summary>Wraps <typeparamref name="T"/> in a <see cref="T:Emik.Optionals.Maybe`1"/>.</summary>
+            <remarks><para>This is an extension method for calling <see cref="M:Emik.Optionals.Maybe.From``1(``0)"/>.</para></remarks>
+            <typeparam name="T">The type of parameter and generic in <see cref="T:Emik.Optionals.Maybe`1"/>.</typeparam>
+            <param name="that">This instance of <typeparamref name="T"/>.</param>
+            <returns>A new instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.Match``2(Emik.Optionals.Maybe{``0},System.Func{``0,Emik.Optionals.Maybe{``1}})">
+            <summary>Uses the callback corresponding to the inner value of <paramref name="that"/>.</summary>
+            <typeparam name="T">The type of value stored within <paramref name="that"/>.</typeparam>
+            <typeparam name="TResult">The <see langword="return"/> value of both callbacks.</typeparam>
+            <param name="that">This instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</param>
+            <param name="some">The callback to run if <see cref="P:Emik.Optionals.Maybe`1.IsSome"/> is <see langword="true"/>.</param>
+            <returns>The value returned from the corresponding callback.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.Match``2(Emik.Optionals.Maybe{``0},System.Func{``0,``1})">
+            <summary>Uses the callback corresponding to the inner value of <paramref name="that"/>.</summary>
+            <typeparam name="T">The type of value stored within <paramref name="that"/>.</typeparam>
+            <typeparam name="TResult">The <see langword="return"/> value of both callbacks.</typeparam>
+            <param name="that">This instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</param>
+            <param name="some">The callback to run if <see cref="P:Emik.Optionals.Maybe`1.IsSome"/> is <see langword="true"/>.</param>
+            <returns>The value returned from the callback, or <see langword="default"/>.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.Match``2(Emik.Optionals.Maybe{``0},``1)">
+            <summary>Gives the parameter corresponding to the inner value of <paramref name="that"/>.</summary>
+            <typeparam name="T">The type of value stored within <paramref name="that"/>.</typeparam>
+            <typeparam name="TResult">The <see langword="return"/> value of both callbacks.</typeparam>
+            <param name="that">This instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</param>
+            <param name="some">The value to return if <see cref="P:Emik.Optionals.Maybe`1.IsSome"/> is <see langword="true"/>.</param>
+            <returns>The parameter, or <see langword="default"/>.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.Unwrap``1(Emik.Optionals.Maybe{``0})">
+            <summary>
+            Gets the value that is encapsulated. This value returned will not be <see langword="null"/>,
+            and consequentially if it is.
+            </summary>
+            <typeparam name="T">The type of value stored within <paramref name="that"/>.</typeparam>
+            <param name="that">This instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</param>
+            <exception cref="T:System.InvalidOperationException">
+            The parameter <paramref name="that"/> has <see cref="P:Emik.Optionals.Maybe`1.IsSome"/> set to <see langword="false"/>.
+            </exception>
+            <returns>The inner value.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.UnwrapOr``1(Emik.Optionals.Maybe{``0},``0)">
+            <summary>Gives the inner value, or the parameter.</summary>
+            <typeparam name="T">The type of value stored within <paramref name="that"/>.</typeparam>
+            <param name="that">This instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</param>
+            <param name="otherwise">The value to return if <see cref="P:Emik.Optionals.Maybe`1.IsSome"/> is <see langword="false"/>.</param>
+            <returns>The inner value, or the parameter <paramref name="otherwise"/>.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.UnwrapOr``1(Emik.Optionals.Maybe{``0},System.Func{Emik.Optionals.Unit,``0})">
+            <summary>Gives the inner value, or the returned value from the callback.</summary>
+            <typeparam name="T">The type of value stored within <paramref name="that"/>.</typeparam>
+            <param name="that">This instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</param>
+            <param name="otherwise">
+            The callback to execute if <see cref="P:Emik.Optionals.Maybe`1.IsSome"/> is <see langword="false"/>.
+            </param>
+            <returns>The inner value, or the returned value from the parameter <paramref name="otherwise"/>.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.UnwrapOrDefault``1(Emik.Optionals.Maybe{``0})">
+            <summary>Gives the inner value, or <see langword="default"/>.</summary>
+            <typeparam name="T">The type of value stored within <paramref name="that"/>.</typeparam>
+            <param name="that">This instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</param>
+            <returns>The inner value, or <see langword="default"/>.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.UnwrapOrNew``1(Emik.Optionals.Maybe{``0})">
+            <summary>Gives the inner value, or a <see langword="new"/> instance.</summary>
+            <typeparam name="T">The type of value stored within <paramref name="that"/>.</typeparam>
+            <param name="that">This instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</param>
+            <returns>The inner value, or a <see langword="new"/> instance.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.Match``2(Emik.Optionals.Maybe{``0},System.Func{``0,``1},System.Func{Emik.Optionals.Unit,``1})">
+            <summary>Uses the callback corresponding to the inner value of <paramref name="that"/>.</summary>
+            <typeparam name="T">The type of value stored within <paramref name="that"/>.</typeparam>
+            <typeparam name="TResult">The <see langword="return"/> value of both callbacks.</typeparam>
+            <param name="that">This instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</param>
+            <param name="some">The callback to run if <see cref="P:Emik.Optionals.Maybe`1.IsSome"/> is <see langword="true"/>.</param>
+            <param name="none">The callback to run if <see cref="P:Emik.Optionals.Maybe`1.IsSome"/> is <see langword="false"/>.</param>
+            <returns>The value returned from the corresponding callback.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe.Match``2(Emik.Optionals.Maybe{``0},``1,``1)">
+            <summary>Gives the parameter corresponding to the inner value of <paramref name="that"/>.</summary>
+            <typeparam name="T">The type of value stored within <paramref name="that"/>.</typeparam>
+            <typeparam name="TResult">The <see langword="return"/> value of both callbacks.</typeparam>
+            <param name="that">This instance of <see cref="T:Emik.Optionals.Maybe`1"/>.</param>
+            <param name="some">The value to return if <see cref="P:Emik.Optionals.Maybe`1.IsSome"/> is <see langword="true"/>.</param>
+            <param name="none">The value to return if <see cref="P:Emik.Optionals.Maybe`1.IsSome"/> is <see langword="false"/>.</param>
+            <returns>The corresponding parameter.</returns>
+        </member>
+        <member name="T:Emik.Optionals.Maybe`1">
+            <summary>A type representing an optional value; Either Some and contains a value, or None, and does not.</summary>
+            <typeparam name="T">The type to encapsulate and project as an optional value.</typeparam>
+        </member>
+        <member name="M:Emik.Optionals.Maybe`1.#ctor(`0)">
+            <summary>Initializes a new instance of the <see cref="T:Emik.Optionals.Maybe`1" /> struct.</summary>
+            <param name="value">The value to encapsulate.</param>
+        </member>
+        <member name="P:Emik.Optionals.Maybe`1.IsNone">
+            <summary>Gets a value indicating whether the value encapsulated is <see langword="null" />.</summary>
+        </member>
+        <member name="P:Emik.Optionals.Maybe`1.IsSome">
+            <summary>Gets a value indicating whether the value encapsulated is not <see langword="null" />.</summary>
+        </member>
+        <member name="P:Emik.Optionals.Maybe`1.Value">
+            <summary>Gets the value that is encapsulated. This value returned may be <see langword="null" />.</summary>
+        </member>
+        <member name="M:Emik.Optionals.Maybe`1.op_Implicit(`0)~Emik.Optionals.Maybe{`0}">
+            <summary>Converts the <typeparamref name="T" /> to a <see langword="new" /> <see cref="T:Emik.Optionals.Maybe`1" />.</summary>
+            <param name="value">The <typeparamref name="T" /> instance to convert.</param>
+            <returns>
+            A <see cref="T:Emik.Optionals.Maybe`1" /> that is Some or None depending on
+            whether <paramref name="value" /> is <see langword="null" />.
+            </returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe`1.op_Explicit(Emik.Optionals.Maybe{`0})~`0">
+            <summary>Converts the <see cref="T:Emik.Optionals.Maybe`1" /> to <typeparamref name="T" />.</summary>
+            <param name="value">The <typeparamref name="T" /> instance to convert.</param>
+            <returns>The inner value.</returns>
+            <exception cref="T:System.InvalidOperationException">The parameter <paramref name="value" /> is a None value.</exception>
+        </member>
+        <member name="M:Emik.Optionals.Maybe`1.op_Equality(Emik.Optionals.Maybe{`0},Emik.Optionals.Maybe{`0})">
+            <summary>Determines whether both instances contain the same values.</summary>
+            <param name="left">The left-hand side.</param>
+            <param name="right">The right-hand side.</param>
+            <returns>
+            The value <see langword="true" /> if both instances contain the same values,
+            otherwise <see langword="false" />.
+            </returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe`1.op_Inequality(Emik.Optionals.Maybe{`0},Emik.Optionals.Maybe{`0})">
+            <summary>Determines whether both instances do not contain the same values.</summary>
+            <param name="left">The left-hand side.</param>
+            <param name="right">The right-hand side.</param>
+            <returns>
+            The value <see langword="true" /> if both instances do not contain the same values,
+            otherwise <see langword="false" />.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Maybe`1.Clone">
+            <inheritdoc />
+        </member>
+        <member name="M:Emik.Optionals.Maybe`1.Equals(Emik.Optionals.Maybe{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Emik.Optionals.Maybe`1.Equals(Emik.Optionals.Maybe{`0},Emik.Optionals.Maybe{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Emik.Optionals.Maybe`1.GetHashCode(Emik.Optionals.Maybe{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:Emik.Optionals.Maybe`1.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Emik.Optionals.Maybe`1.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Emik.Optionals.Maybe`1.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Emik.Optionals.Unit">
+            <summary>
+            A type that has exactly one value, and is used when there is no other meaningful value that could be returned.
+            </summary>
+        </member>
+        <member name="P:Emik.Optionals.Unit.Value">
+            <summary>Gets the singular value.</summary>
+        </member>
+        <member name="M:Emik.Optionals.Unit.op_Equality(Emik.Optionals.Unit,Emik.Optionals.Unit)">
+            <summary>Returns <see langword="true" />.</summary>
+            <remarks><para>Since this type has one value, any instance is the same as each other.</para></remarks>
+            <param name="left">The left-hand side.</param>
+            <param name="right">The right-hand side.</param>
+            <returns>The value <see langword="true" />.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Unit.op_Inequality(Emik.Optionals.Unit,Emik.Optionals.Unit)">
+            <summary>Returns <see langword="false" />.</summary>
+            <remarks><para>Since this type has one value, any instance is the same as each other.</para></remarks>
+            <param name="left">The left-hand side.</param>
+            <param name="right">The right-hand side.</param>
+            <returns>The value <see langword="false" />.</returns>
+        </member>
+        <member name="M:Emik.Optionals.Unit.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Emik.Optionals.Unit.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Emik.Optionals.Unit.System#IEquatable{Emik#Optionals#Unit}#Equals(Emik.Optionals.Unit)">
+            <inheritdoc />
+        </member>
+        <member name="M:Emik.Optionals.Unit.System#Collections#Generic#IEqualityComparer{Emik#Optionals#Unit}#Equals(Emik.Optionals.Unit,Emik.Optionals.Unit)">
+            <inheritdoc />
+        </member>
+        <member name="M:Emik.Optionals.Unit.System#Collections#Generic#IEqualityComparer{Emik#Optionals#Unit}#GetHashCode(Emik.Optionals.Unit)">
+            <inheritdoc />
+        </member>
+        <member name="M:Emik.Optionals.Unit.System#ICloneable#Clone">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

@@ -11405,6 +11405,8 @@ MonoBehaviour:
   - {fileID: 1150214586306218}
   - {fileID: 1708885012575498}
   - {fileID: 1638128428019362}
+  PlanetMaterial: {fileID: 2100000, guid: 888613cd1407ce847b41e71e583679cb, type: 2}
+  BorderMaterial: {fileID: 2100000, guid: 92b64fac1e632a04bbb85fc4abcb62a2, type: 2}
 --- !u!114 &114283732167012424
 MonoBehaviour:
   m_ObjectHideFlags: 1
