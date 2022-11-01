@@ -4,6 +4,9 @@
         <name>Emik.Optionals</name>
     </assembly>
     <members>
+        <member name="T:System.Diagnostics.Contracts.PureAttribute">
+            <summary>Indicates that a type or method is pure, that is, it does not make any visible state changes.</summary>
+        </member>
         <member name="T:System.Diagnostics.CodeAnalysis.MemberNotNullWhenAttribute">
             <summary>
             Specifies that the method or property will ensure that the listed field and property members have not-null values

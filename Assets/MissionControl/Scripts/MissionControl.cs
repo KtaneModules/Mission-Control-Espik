@@ -14,6 +14,7 @@ public class MissionControl : MonoBehaviour {
 
     public KMSelectable ButtonSelectable;
     public TextMesh ButtonText;
+    public TextMesh ButtonBigText;
     public Transform ButtonTransform;
 
     // From Mystery Module
@@ -23,7 +24,7 @@ public class MissionControl : MonoBehaviour {
 
     public Material PlanetMaterial;
     public Material BorderMaterial;
-
+    public Material VignetteMaterial;
 
     // Logging info
     private static int moduleIdCounter = 1;
@@ -75,7 +76,7 @@ public class MissionControl : MonoBehaviour {
     private int actualStrikes = 0;
     private int bombStrikes = 0;
     private int storedNumber = 1;
-    private float storedTime = 4800.0f;
+    private float storedTime = 4500.0f;
 
     private bool franticMode = false;
     private bool freezeTimer = false;
@@ -85,7 +86,7 @@ public class MissionControl : MonoBehaviour {
 
     private readonly int JAM_STRIKE_LIMIT = 4;
     private readonly int JAM_MODULE_COUNT = 55;
-    private readonly float JAM_BOMB_TIME = 4800.0f;
+    private readonly float JAM_BOMB_TIME = 4500.0f;
 
     private readonly string[] JAM_MODULES = { "3dTunnels", "AdjacentLettersModule", "atlantis", "bafflingBox", "boolMaze", "CheapCheckoutModule", "colorfulHexabuttons",
         "ColourFlash", "CrazyTalk", "cruelModulo", "cucumberModule", "decimation", "DecolourFlashModule", "digitString", "DiscoloredSquaresModule", "GlitchedButtonModule",
@@ -104,6 +105,13 @@ public class MissionControl : MonoBehaviour {
     private KMBombModule[] jamModule = new KMBombModule[54];
     private Vector3[] jamModuleScale = new Vector3[54];
     private Vector3 missionControlScale;
+
+    private readonly float BORDER_GREEN = 0.6640625f;
+    private readonly float BUTTON_GREEN = 0.75f;
+    private readonly float BUTTON_BLUE = 0.5f;
+
+    private CameraPostProcess postProcess = null;
+    private Transform cameraPos = null;
 
     // Mod settings
     private MissionControlSettings Settings;
@@ -125,10 +133,14 @@ public class MissionControl : MonoBehaviour {
         ButtonSelectable.OnInteract += delegate () { ButtonPressed(); return false; };
 
         Module.OnActivate += OnActivate;
+
+        cameraPos = Camera.main.transform;
     }
 
     // Gets information
     private void Start() {
+        BorderMaterial.color = new Color(1.0f, BORDER_GREEN, 0.0f);
+        PlanetMaterial.color = new Color(1.0f, BUTTON_GREEN, BUTTON_BLUE);
         StartCoroutine(AnimateButton());
 
         mission = GetMission();
@@ -326,6 +338,7 @@ public class MissionControl : MonoBehaviour {
 
     // Hides a module for Precise Instability
     private IEnumerator HideJamModule(int num, bool delay, bool validate) {
+        yield return new WaitForSeconds(0.02f);
         Debug.LogFormat("<Mission Control #{0}> Hiding module: {1}", moduleId, jamModule[num].ModuleDisplayName);
 
         if (!delay) {
@@ -460,37 +473,47 @@ public class MissionControl : MonoBehaviour {
                 actualStrikes++;
 
                 // Bomb has 4+ strikes
-                if (actualStrikes >= 4 && !ZenModeActive && !TimeModeActive) {
+                if (actualStrikes >= JAM_STRIKE_LIMIT && !ZenModeActive && !TimeModeActive) {
                     Debug.LogFormat("[Mission Control #{0}] Strike limit reached! Detonating bomb.", moduleId);
-                    while (Bomb.GetStrikes() < 4)
-                        Module.HandleStrike();
+                    StartCoroutine(DetonateBomb());
                 }
 
-                Debug.LogFormat("[Mission Control #{0}] Strike detected on another module! Entering countdown mode.", moduleId);
-                Debug.LogFormat("[Mission Control #{0}] To remove the effects of the strike, press the button when the timer displays {1}.", moduleId, storedNumber);
+                else {
+                    Debug.LogFormat("[Mission Control #{0}] Strike detected on another module! Entering countdown mode.", moduleId);
+                    Debug.LogFormat("[Mission Control #{0}] To remove the effects of the strike, press the button when the timer displays {1}.", moduleId, storedNumber);
 
-                freezeTimer = true;
-                StartCoroutine(FreezeTimer());
-                storedTime = Bomb.GetTime();
+                    freezeTimer = true;
+                    StartCoroutine(FreezeTimer());
+                    storedTime = Bomb.GetTime();
 
-                acceptingStrikes = false;
-                readyToChange = false;
-                flickerText = false;
-                franticMode = true;
-                enteredTimerNumber = false;
+                    acceptingStrikes = false;
+                    readyToChange = false;
+                    flickerText = false;
+                    franticMode = true;
+                    enteredTimerNumber = false;
+                    enteredSecond = 0;
 
-                for (int i = 0; i < jamModule.Length; i++) {
-                    if (i == jamModule.Length - 1)
-                        StartCoroutine(HideJamModule(i, true, true));
-                    
-                    else
-                        StartCoroutine(HideJamModule(i, true, false));
+                    for (int i = 0; i < jamModule.Length; i++) {
+                        if (i == jamModule.Length - 1)
+                            StartCoroutine(HideJamModule(i, true, true));
+
+                        else
+                            StartCoroutine(HideJamModule(i, true, false));
+                    }
+
+                    StartCoroutine(ChangeBorderColor(false));
+                    StartCoroutine(StartTimer());
                 }
-
-                StartCoroutine(ChangeBorderColor(false));
-                StartCoroutine(StartTimer());
             }
             break;
+        }
+    }
+
+    // Strikes the bomb until it explodes
+    private IEnumerator DetonateBomb() {
+        while (Bomb.GetStrikes() < JAM_STRIKE_LIMIT) {
+            Module.HandleStrike();
+            yield return new WaitForSeconds(0.02f);
         }
     }
 
@@ -533,7 +556,8 @@ public class MissionControl : MonoBehaviour {
         }
 
         else if (TimeModeActive) {
-            endTime = 600.0f + storedNumber;
+            startTime = Bomb.GetTime();
+            endTime = Bomb.GetTime() + storedNumber;
         }
 
         yield return new WaitForSeconds(2.0f);
@@ -568,14 +592,12 @@ public class MissionControl : MonoBehaviour {
 
     // Changes the color of the button and border
     private IEnumerator ChangeBorderColor(bool direction) {
-        float borderGreen = 0.6640625f;
-        float buttonGreen = 0.75f;
-        float buttonBlue = 0.5f;
-
         if (!direction) {
+            StartCoroutine(FadeIn());
+
             for (float i = 89.0f; i >= 0.0f; i--) {
-                BorderMaterial.color = new Color(1.0f, borderGreen * (i / 90.0f), 0.0f);
-                PlanetMaterial.color = new Color(1.0f, buttonGreen * (i / 90.0f), buttonBlue * (i / 90.0f));
+                BorderMaterial.color = new Color(1.0f, BORDER_GREEN * (i / 90.0f), 0.0f);
+                PlanetMaterial.color = new Color(1.0f, BUTTON_GREEN * (i / 90.0f), BUTTON_BLUE * (i / 90.0f));
                 yield return new WaitForSeconds(0.02f);
             }
 
@@ -584,14 +606,16 @@ public class MissionControl : MonoBehaviour {
         }
 
         else {
+            StartCoroutine(FadeOut());
+
             for (float i = 0.0f; i < 90.0f; i++) {
-                BorderMaterial.color = new Color(1.0f, borderGreen * (i / 90.0f), 0.0f);
-                PlanetMaterial.color = new Color(1.0f, buttonGreen * (i / 90.0f), buttonBlue * (i / 90.0f));
+                BorderMaterial.color = new Color(1.0f, BORDER_GREEN * (i / 90.0f), 0.0f);
+                PlanetMaterial.color = new Color(1.0f, BUTTON_GREEN * (i / 90.0f), BUTTON_BLUE * (i / 90.0f));
                 yield return new WaitForSeconds(0.02f);
             }
 
-            BorderMaterial.color = new Color(1.0f, borderGreen, 0.0f);
-            PlanetMaterial.color = new Color(1.0f, buttonGreen, buttonBlue);
+            BorderMaterial.color = new Color(1.0f, BORDER_GREEN, 0.0f);
+            PlanetMaterial.color = new Color(1.0f, BUTTON_GREEN, BUTTON_BLUE);
             acceptingStrikes = true;
         }
 
@@ -601,20 +625,20 @@ public class MissionControl : MonoBehaviour {
     // Starts the countdown timer
     private IEnumerator StartTimer() {
         Audio.PlaySoundAtTransform("missionControl_MechanismsClock", transform);
-        ButtonText.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+        ButtonBigText.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 
         for (displayedSecond = 30; displayedSecond > 0; displayedSecond--) {
-            ButtonText.text = displayedSecond.ToString();
+            ButtonBigText.text = displayedSecond.ToString();
             yield return new WaitForSeconds(1.0f);
         }
 
-        ButtonText.text = "0";
+        ButtonBigText.text = "0";
         if (enteredSecond == storedNumber) {
             Audio.PlaySoundAtTransform("missionControl_goodChime", transform);
             Debug.LogFormat("[Mission Control #{0}] You pressed at the correct time! One strike removed!", moduleId);
 
-            // Code by Emik
-            var bomb = GetComponent<KMBomb>();
+            // Code by Emik (currently bugged)
+            var bomb = GetComponentInParent<KMBomb>();
             int strikes = bomb.GetStrikes();
             strikes -= 1;
             bomb.SetStrikes(strikes);
@@ -632,8 +656,8 @@ public class MissionControl : MonoBehaviour {
 
         yield return new WaitForSeconds(2.0f);
         freezeTimer = false;
-        ButtonText.color = new Color(1.0f, 1.0f, 1.0f, 0.0f);
-        ButtonText.text = actualStrikes.ToString();
+        ButtonBigText.color = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+        ButtonBigText.text = actualStrikes.ToString();
         Debug.LogFormat("[Mission Control #{0}] The bomb currently has {1} internal strikes.", moduleId, actualStrikes);
         
         flickerText = true;
@@ -710,16 +734,21 @@ public class MissionControl : MonoBehaviour {
             transparency += 0.01f;
             transparency %= 2.0f;
 
-            if (transparency > 1.0f) // Down
+            if (transparency > 1.0f) { // Down
                 ButtonText.color = new Color(1.0f, 1.0f, 1.0f, 2.0f - transparency);
+                ButtonBigText.color = new Color(1.0f, 1.0f, 1.0f, 2.0f - transparency);
+            }
 
-            else // Up
+            else { // Up
                 ButtonText.color = new Color(1.0f, 1.0f, 1.0f, transparency);
+                ButtonBigText.color = new Color(1.0f, 1.0f, 1.0f, transparency);
+            }
 
             yield return new WaitForSeconds(0.02f);
         }
 
         ButtonText.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+        ButtonBigText.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
 
@@ -736,7 +765,43 @@ public class MissionControl : MonoBehaviour {
             return "undefined";
         }
     }
-    
+
+
+    // Fades in the vignette - code from Art Appreciation
+    private IEnumerator FadeIn(float speed = 0.67f) {
+        if (postProcess != null) {
+            DestroyImmediate(postProcess);
+        }
+
+        postProcess = cameraPos.gameObject.AddComponent<CameraPostProcess>();
+        postProcess.PostProcessMaterial = new Material(VignetteMaterial);
+
+        for (float progress = 0.0f; progress < 1.0f; progress += Time.deltaTime * speed) {
+            postProcess.Vignette = progress * 1.6f;
+            postProcess.Grayscale = progress * 0.35f;
+
+            yield return null;
+        }
+
+        postProcess.Vignette = 1.6f;
+        postProcess.Grayscale = 0.35f;
+    }
+
+    // Fades out the vignette - code from Art Appreciation
+    private IEnumerator FadeOut(float speed = 0.67f) {
+        for (float progress = 1.0f - Time.deltaTime * speed; progress >= 0.0f; progress -= Time.deltaTime * speed) {
+            postProcess.Vignette = progress * 1.6f;
+            postProcess.Grayscale = progress * 0.35f;
+
+            yield return null;
+        }
+
+        if (postProcess != null) {
+            DestroyImmediate(postProcess);
+            postProcess = null;
+        }
+    }
+
 
     // Button is pressed
     private void ButtonPressed() {

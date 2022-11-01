@@ -1,12 +1,20 @@
 InEffect Sound: The Chase GSN
 Good & Bad Chime: Deltarune Chapter 2
-
 Mechanisms Clock: Who Wants to be a Millionaire
 
 Manual SVG: Janko
 
 Mission Detection Code: S.
+
 Mystery Module code: Goofy
 Mystery Module cover model: Goofy
 Mystery Module cover texture: davenonymous, RobotGryphon
-Time Manager script: Timwi
+
+PostProcess vignette material: Ashthebash
+PostProcess vignette scripts: Ashthebash
+
+Strike detection code: Emik
+
+Time Manager script: Timwi, samfundev
+
+Twitch Plays support: eXish

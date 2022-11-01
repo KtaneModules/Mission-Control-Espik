@@ -4,6 +4,9 @@
         <name>wawa.DDL</name>
     </assembly>
     <members>
+        <member name="T:System.Diagnostics.Contracts.PureAttribute">
+            <summary>Indicates that a type or method is pure, that is, it does not make any visible state changes.</summary>
+        </member>
         <member name="T:System.ValueTuple`2">
             <summary>Represents a 2-tuple, or pair, as a value type.</summary>
             <typeparam name="T1">The type of the tuple's first component.</typeparam>
@@ -163,6 +166,19 @@
             <remarks><para>In the editor, this value always returns 0.</para></remarks>
             <param name="that">The <see cref="T:KMBomb"/> module instance to grab strikes from.</param>
             <returns>The number of strikes.</returns>
+        </member>
+        <member name="M:Wawa.DDL.KMBombStrikeExtensions.GetRate(KMBomb)">
+            <summary>Gets the rate in which the timer ticks.</summary>
+            <remarks><para>In the editor, this value always returns 1.</para></remarks>
+            <param name="that">The <see cref="T:KMBomb"/> module instance to grab the rate from.</param>
+            <returns>The speed of the ticking.</returns>
+        </member>
+        <member name="M:Wawa.DDL.KMBombStrikeExtensions.SetRate(KMBomb,System.Single)">
+            <summary>Sets the rate in which the timer ticks.</summary>
+            <remarks><para>In the editor, this method does nothing.</para></remarks>
+            <param name="that">The <see cref="T:KMBomb"/> module instance to grab the rate from.</param>
+            <param name="value">The value to set it to.</param>
+            <returns>The parameter <see cref="T:KMBomb"/>.</returns>
         </member>
         <member name="M:Wawa.DDL.KMBombStrikeExtensions.SetStrikes(KMBomb,System.Int32)">
             <summary>Sets the number of strikes.</summary>
