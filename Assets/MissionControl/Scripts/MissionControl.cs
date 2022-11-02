@@ -76,7 +76,7 @@ public class MissionControl : MonoBehaviour {
     private int actualStrikes = 0;
     private int bombStrikes = 0;
     private int storedNumber = 1;
-    private float storedTime = 4500.0f;
+    private float storedTime = 0.0f;
 
     private bool franticMode = false;
     private bool freezeTimer = false;
@@ -86,7 +86,7 @@ public class MissionControl : MonoBehaviour {
 
     private readonly int JAM_STRIKE_LIMIT = 4;
     private readonly int JAM_MODULE_COUNT = 55;
-    private readonly float JAM_BOMB_TIME = 4500.0f;
+    private readonly float JAM_BOMB_TIME = 4800.0f;
 
     private readonly string[] JAM_MODULES = { "3dTunnels", "AdjacentLettersModule", "atlantis", "bafflingBox", "boolMaze", "CheapCheckoutModule", "colorfulHexabuttons",
         "ColourFlash", "CrazyTalk", "cruelModulo", "cucumberModule", "decimation", "DecolourFlashModule", "digitString", "DiscoloredSquaresModule", "GlitchedButtonModule",
@@ -807,11 +807,16 @@ public class MissionControl : MonoBehaviour {
     private void ButtonPressed() {
         ButtonSelectable.AddInteractionPunch(0.5f);
 
+        // Precise Instability
         if (franticMode && !enteredTimerNumber) {
             enteredSecond = displayedSecond;
-            enteredTimerNumber = false;
+            enteredTimerNumber = true;
             Audio.PlaySoundAtTransform("missionControl_buttonPress", transform);
-            Debug.LogFormat("[Mission Control #{0}] You pressed the button when the timer displayed {1}.", moduleId, enteredSecond);
+            Debug.LogFormat("[Mission Control #{0}] You pressed the button when the countdown displayed {1}.", moduleId, enteredSecond);
+        }
+
+        else if (franticMode) {
+            Debug.LogFormat("[Mission Control #{0}] You pressed the button again during the countdown. Only the first press is registered.", moduleId);
         }
 
         // Wish
