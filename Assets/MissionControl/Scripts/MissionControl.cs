@@ -85,7 +85,6 @@ public class MissionControl : MonoBehaviour {
     private bool enteredTimerNumber = false;
 
     private readonly int JAM_STRIKE_LIMIT = 4;
-    private readonly int JAM_MODULE_COUNT = 55;
     private readonly float JAM_BOMB_TIME = 4800.0f;
 
     private readonly string[] JAM_MODULES = { "3dTunnels", "AdjacentLettersModule", "atlantis", "bafflingBox", "boolMaze", "CheapCheckoutModule", "colorfulHexabuttons",
@@ -93,14 +92,7 @@ public class MissionControl : MonoBehaviour {
         "GrayButtonModule", "gyromaze", "HitmanModule", "KritHoldUps", "HumanResourcesModule", "identificationCrisis", "Indentation", "SCP2719", "jewelVault", "latinHypercube",
         "Laundry", "Lean", "letteredHexabuttons", "mazematics", "meteor", "MssngvWls", "neptune", "NotBitmapsModule", "OnlyConnectModule", "PianoParadoxModule", "poetry", "rottenBeans",
         "PasswordV2", "qSchlagDenBomb", "SetModule", "shapesAndColors", "shapeshift", "simonSelectsModule", "SimonShiftsModule", "simonStumbles", "ButtonV2", "stabilityModule",
-        "timeMachine", "undertunneling", "vigenereCipher", "widdershins", "X01", "zeroZero" };
-
-    private readonly string[] JAM_MODULE_NAMES = { "3D Tunnels", "Adjacent Letters", "Atlantis", "Baffling Box", "Boolean Maze", "Cheap Checkout", "Colorful Hexabuttons",
-        "Colour Flash", "Crazy Talk", "Cruel Modulo", "Cucumber", "Decimation", "Decolour Flash", "Digit String", "Discolored Squares", "The Glitched Button",
-        "The Gray Button", "Gyromaze", "Hitman", "Hold Ups", "Human Resources", "Identification Crisis", "Indentation", "Inside", "The Jewel Vault", "Latin Hypercube",
-        "Laundry", "LEAN!!!", "Lettered Hexabuttons", "Mazematics", "Meteor", "Mssngv Wls", "Neptune", "Not Bitmaps", "Only Connect", "Piano Paradox", "Poetry", "Rotten Beans",
-        "Safety Safe", "Schlag den Bomb", "S.E.T.", "Shapes and Colors", "Shape Shift", "Simon Selects", "Simon Shifts", "Simon Stumbles", "Square Button", "Stability",
-        "Time Machine", "Undertunneling", "Vigenère Cipher", "Widdershins", "X01", "Zero, Zero" };
+        "timeMachine", "undertunneling", "vigenereCipher", "widdershins", "X01", "YahtzeeModule" };
 
     private KMBombModule[] jamModule = new KMBombModule[54];
     private Vector3[] jamModuleScale = new Vector3[54];
@@ -172,23 +164,14 @@ public class MissionControl : MonoBehaviour {
             mode = 4;
             StartCoroutine(HideWishModules());
             break;
-        }
 
-        if (!missionFound && Bomb.GetSolvableModuleNames().Count() == JAM_MODULE_COUNT) { // Precise Instability
-            int validCount = 0;
-
-            foreach (string module in JAM_MODULE_NAMES) {
-                if (Bomb.GetSolvableModuleNames().Count(x => x.Contains(module)) >= 1)
-                    validCount++;
-            }
-
-            if (validCount == JAM_MODULE_COUNT - 1) {
-                Debug.LogFormat("[Mission Control #{0}] Found mission: \"Precise Instability\"", moduleId);
-                missionFound = true;
-                mode = 5;
-                StartCoroutine(HideJamModules());
-                storedNumber = UnityEngine.Random.Range(1, 21);
-            }
+        case "mod_jamMissions_Espik": // Precise Instability
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Precise Instability\"", moduleId);
+            missionFound = true;
+            mode = 5;
+            StartCoroutine(HideJamModules());
+            storedNumber = UnityEngine.Random.Range(1, 21);
+            break;
         }
     }
 
