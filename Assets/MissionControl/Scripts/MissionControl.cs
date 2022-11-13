@@ -47,6 +47,7 @@ public class MissionControl : MonoBehaviour {
      * 3: Disconnected
      * 4: Wish
      * 5: Precise Instability
+     * 6: For No Eyes Only
      */
 
     // Mission specific variables
@@ -105,6 +106,8 @@ public class MissionControl : MonoBehaviour {
     private CameraPostProcess postProcess = null;
     private Transform cameraPos = null;
 
+    private string edgeworkNumber = "";
+
     // Mod settings
     private MissionControlSettings Settings;
 
@@ -131,10 +134,7 @@ public class MissionControl : MonoBehaviour {
 
     // Gets information
     private void Start() {
-        BorderMaterial.color = new Color(1.0f, BORDER_GREEN, 0.0f);
-        PlanetMaterial.color = new Color(1.0f, BUTTON_GREEN, BUTTON_BLUE);
         StartCoroutine(AnimateButton());
-
         mission = GetMission();
 
         switch (mission) {
@@ -171,6 +171,14 @@ public class MissionControl : MonoBehaviour {
             mode = 5;
             StartCoroutine(HideJamModules());
             storedNumber = UnityEngine.Random.Range(1, 21);
+            break;
+
+        case "mod_blindfoldMissions_blindBomb": // For No Eyes Only
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"For No Eyes Only\"", moduleId);
+            missionFound = true;
+            mode = 6;
+            FadeInBlack();
+            edgeworkNumber = GetEdgeworkNumber();
             break;
         }
     }
@@ -489,6 +497,13 @@ public class MissionControl : MonoBehaviour {
                 }
             }
             break;
+
+        case 6: // For No Eyes Only
+            if (!bombSolved && Bomb.GetSolvedModuleNames().Count() >= 47) {
+                StartCoroutine(FadeOutBlack());
+                bombSolved = true;
+            }
+            break;
         }
     }
 
@@ -692,11 +707,6 @@ public class MissionControl : MonoBehaviour {
         }
     }
 
-    // Resets the sound effect
-    private void OnDestroy() {
-        canPlayIntro = true;
-    }
-
 
     // Rotates the button so the texture animates
     private IEnumerator AnimateButton() {
@@ -785,6 +795,178 @@ public class MissionControl : MonoBehaviour {
         }
     }
 
+    // Fades in the black screen
+    private void FadeInBlack() {
+        if (postProcess != null) {
+            DestroyImmediate(postProcess);
+        }
+
+        postProcess = cameraPos.gameObject.AddComponent<CameraPostProcess>();
+        postProcess.PostProcessMaterial = new Material(VignetteMaterial);
+
+        postProcess.Vignette = 10000.0f;
+    }
+
+    // Fades out the black screen
+    private IEnumerator FadeOutBlack(float speed = 1.0f) {
+        for (float progress = 1.0f - Time.deltaTime * speed; progress >= 0.0f; progress -= Time.deltaTime * speed) {
+            postProcess.Vignette = progress * 20.0f;
+
+            yield return null;
+        }
+
+        if (postProcess != null) {
+            DestroyImmediate(postProcess);
+            postProcess = null;
+        }
+    }
+
+
+    // Gets the number for edgework
+    private string GetEdgeworkNumber() {
+        canPressButton = false;
+        string str = "";
+
+        str += (Bomb.GetBatteryCount() % 10).ToString();
+        str += (Bomb.GetBatteryHolderCount() % 10).ToString();
+
+        int indicatorNumber = 0;
+
+        if (Bomb.IsIndicatorPresent(Indicator.BOB)) { indicatorNumber += 1024; }
+        if (Bomb.IsIndicatorPresent(Indicator.CAR)) { indicatorNumber += 512; }
+        if (Bomb.IsIndicatorPresent(Indicator.CLR)) { indicatorNumber += 256; }
+        if (Bomb.IsIndicatorPresent(Indicator.FRK)) { indicatorNumber += 128; }
+        if (Bomb.IsIndicatorPresent(Indicator.FRQ)) { indicatorNumber += 64; }
+        if (Bomb.IsIndicatorPresent(Indicator.IND)) { indicatorNumber += 32; }
+        if (Bomb.IsIndicatorPresent(Indicator.MSA)) { indicatorNumber += 16; }
+        if (Bomb.IsIndicatorPresent(Indicator.NSA)) { indicatorNumber += 8; }
+        if (Bomb.IsIndicatorPresent(Indicator.SIG)) { indicatorNumber += 4; }
+        if (Bomb.IsIndicatorPresent(Indicator.SND)) { indicatorNumber += 2; }
+        if (Bomb.IsIndicatorPresent(Indicator.TRN)) { indicatorNumber += 1; }
+
+        string valueStr = Convert.ToString(indicatorNumber, 8);
+        str += valueStr.PadLeft(4, '0');
+
+        indicatorNumber = 0;
+
+        if (Bomb.IsIndicatorOn(Indicator.BOB)) { indicatorNumber += 1024; }
+        if (Bomb.IsIndicatorOn(Indicator.CAR)) { indicatorNumber += 512; }
+        if (Bomb.IsIndicatorOn(Indicator.CLR)) { indicatorNumber += 256; }
+        if (Bomb.IsIndicatorOn(Indicator.FRK)) { indicatorNumber += 128; }
+        if (Bomb.IsIndicatorOn(Indicator.FRQ)) { indicatorNumber += 64; }
+        if (Bomb.IsIndicatorOn(Indicator.IND)) { indicatorNumber += 32; }
+        if (Bomb.IsIndicatorOn(Indicator.MSA)) { indicatorNumber += 16; }
+        if (Bomb.IsIndicatorOn(Indicator.NSA)) { indicatorNumber += 8; }
+        if (Bomb.IsIndicatorOn(Indicator.SIG)) { indicatorNumber += 4; }
+        if (Bomb.IsIndicatorOn(Indicator.SND)) { indicatorNumber += 2; }
+        if (Bomb.IsIndicatorOn(Indicator.TRN)) { indicatorNumber += 1; }
+
+        valueStr = Convert.ToString(indicatorNumber, 8);
+        str += valueStr.PadLeft(4, '0');
+
+        str += Bomb.GetPortCount(Port.DVI).ToString();
+        str += Bomb.GetPortCount(Port.Parallel).ToString();
+        str += Bomb.GetPortCount(Port.PS2).ToString();
+        str += Bomb.GetPortCount(Port.StereoRCA).ToString();
+        str += Bomb.GetPortCount(Port.RJ45).ToString();
+        str += Bomb.GetPortCount(Port.Serial).ToString();
+
+        str += Bomb.GetPortPlateCount().ToString();
+
+        int emptyPlateCount = 0;
+        foreach (object[] plate in Bomb.GetPortPlates()) {
+            if (plate.Length == 0)
+                emptyPlateCount++;
+        }
+
+        str += emptyPlateCount.ToString();
+
+        string serialNumber = Bomb.GetSerialNumber();
+        uint snConvert = 0;
+        
+        for (int i = 0; i < 6; i++)
+            snConvert += GetSerialNumberValue(serialNumber[i], i);
+
+        str += snConvert.ToString().PadLeft(10, '0');
+
+        Debug.LogFormat("[Mission Control #{0}] The number received by the edgework is {1}", moduleId, str);
+        canPressButton = true;
+        return str;
+    }
+
+    // Gets the base-36 values of the serial number
+    private uint GetSerialNumberValue(char character, int pos) {
+        uint multiplier = (uint) Math.Pow(36, 5 - pos);
+
+        switch (character) {
+            case 'Z': return 35 * multiplier;
+            case 'Y': return 34 * multiplier;
+            case 'X': return 33 * multiplier;
+            case 'W': return 32 * multiplier;
+            case 'V': return 31 * multiplier;
+            case 'U': return 30 * multiplier;
+            case 'T': return 29 * multiplier;
+            case 'S': return 28 * multiplier;
+            case 'R': return 27 * multiplier;
+            case 'Q': return 26 * multiplier;
+            case 'P': return 25 * multiplier;
+            case 'O': return 24 * multiplier;
+            case 'N': return 23 * multiplier;
+            case 'M': return 22 * multiplier;
+            case 'L': return 21 * multiplier;
+            case 'K': return 20 * multiplier;
+            case 'J': return 19 * multiplier;
+            case 'I': return 18 * multiplier;
+            case 'H': return 17 * multiplier;
+            case 'G': return 16 * multiplier;
+            case 'F': return 15 * multiplier;
+            case 'E': return 14 * multiplier;
+            case 'D': return 13 * multiplier;
+            case 'C': return 12 * multiplier;
+            case 'B': return 11 * multiplier;
+            case 'A': return 10 * multiplier;
+            case '9': return 9 * multiplier;
+            case '8': return 8 * multiplier;
+            case '7': return 7 * multiplier;
+            case '6': return 6 * multiplier;
+            case '5': return 5 * multiplier;
+            case '4': return 4 * multiplier;
+            case '3': return 3 * multiplier;
+            case '2': return 2 * multiplier;
+            case '1': return 1 * multiplier;
+            default: return 0;
+        }
+    }
+
+
+    // Reading the edgework number
+    private IEnumerator ReadEdgework() {
+        yield return new WaitForSeconds(4.0f);
+
+        ButtonBigText.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+        for (int i = 0; i < edgeworkNumber.Length; i++) {
+            ButtonBigText.text = edgeworkNumber[i].ToString();
+            switch (edgeworkNumber[i]) {
+                case '9': Audio.PlaySoundAtTransform("missionControl_9", transform); break;
+                case '8': Audio.PlaySoundAtTransform("missionControl_8", transform); break;
+                case '7': Audio.PlaySoundAtTransform("missionControl_7", transform); break;
+                case '6': Audio.PlaySoundAtTransform("missionControl_6", transform); break;
+                case '5': Audio.PlaySoundAtTransform("missionControl_5", transform); break;
+                case '4': Audio.PlaySoundAtTransform("missionControl_4", transform); break;
+                case '3': Audio.PlaySoundAtTransform("missionControl_3", transform); break;
+                case '2': Audio.PlaySoundAtTransform("missionControl_2", transform); break;
+                case '1': Audio.PlaySoundAtTransform("missionControl_1", transform); break;
+                default: Audio.PlaySoundAtTransform("missionControl_0", transform); break;
+            }
+
+            yield return new WaitForSeconds(1.0f);
+        }
+
+        ButtonBigText.text = "";
+        yield return new WaitForSeconds(3.0f);
+        Solve();
+        canPressButton = true;
+    }
 
     // Button is pressed
     private void ButtonPressed() {
@@ -824,6 +1006,15 @@ public class MissionControl : MonoBehaviour {
             canPressButton = true;
         }
 
+        // For No Eyes Only
+        else if (mode == 6 && canPressButton) {
+            canPressButton = false;
+            Audio.PlaySoundAtTransform("missionControl_buttonPress", transform);
+            Audio.PlaySoundAtTransform("missionControl_edgeworkRead", transform);
+            Debug.LogFormat("[Mission Control #{0}] You pressed the button. Reading the edgework number now.", moduleId);
+            StartCoroutine(ReadEdgework());
+        }
+
         // Unmodified rules
         else if (canPressButton && !moduleSolved) {
             Audio.PlaySoundAtTransform("missionControl_buttonPress", transform);
@@ -837,12 +1028,28 @@ public class MissionControl : MonoBehaviour {
         }
     }
 
+    
+    // Removes gimmick effects when the the bomb isn't active
+    private void OnDestroy() {
+        canPlayIntro = true;
+        BorderMaterial.color = new Color(1.0f, BORDER_GREEN, 0.0f);
+        PlanetMaterial.color = new Color(1.0f, BUTTON_GREEN, BUTTON_BLUE);
+
+        if (postProcess != null) {
+            postProcess.Vignette = 0.0f;
+            postProcess.Grayscale = 0.0f;
+            DestroyImmediate(postProcess);
+            postProcess = null;
+        }
+    }
 
     // Module solves
     private void Solve() {
-        Debug.LogFormat("[Mission Control #{0}] Module solved!", moduleId);
-        moduleSolved = true;
-        Module.HandlePass();
+        if (!moduleSolved) {
+            Debug.LogFormat("[Mission Control #{0}] Module solved!", moduleId);
+            moduleSolved = true;
+            Module.HandlePass();
+        }
     }
 
     // Module strikes
@@ -852,7 +1059,7 @@ public class MissionControl : MonoBehaviour {
     }
 
 
-    // Variable set by Tweaks for Zen mode detection
+    // Variables set by Tweaks for Zen/Time mode detection
     #pragma warning disable 414
     private bool ZenModeActive;
     private bool TimeModeActive;

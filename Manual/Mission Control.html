@@ -1,55 +1,330 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
-    <title>Mission Control — Keep Talking and Nobody Explodes Module</title>
     <meta name="viewport" content="initial-scale=1">
+    <title>Mission Control — Keep Talking and Nobody Explodes Module</title>
+    <link rel="stylesheet" type="text/css" href="css/font.css">
     <link rel="stylesheet" type="text/css" href="css/normalize.css">
     <link rel="stylesheet" type="text/css" href="css/main.css">
-    <link rel="stylesheet" type="text/css" href="css/font.css">
     <script src="js/ktane-utils.js"></script>
 </head>
 <body>
-    <div id="ManualContent">
-        <div class="section">
-            <div class="page page-bg-01">
-                <div class="page-header">
-                    <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
-                    <span class="page-header-section-title">Mission Control</span>
-                </div>
-                <div class="page-content">
-                    <img src="img/Component/Mission Control.svg" class="diagram">
-                    <h2>On the Subject of Mission Control</h2>
-                    <p class="flavour-text">Houston, we have a bunch of problems.</p>
-
-                    <p>This is a utility module used to alter how missions are usually played.
-					This includes changing the bomb's time, changing the game music, or hiding modules until criteria are met. 
-					The effects are different depending on the mission.</p>
-					
-					<h3>Mission Detection</h3>
-                    
-					<p>If the module has successfully detected a supported mission, an ominous sound can be heard notifying its presence. 
-					The bomb will be affected by whatever is configured for that mission.</p>
-					
-					<p>If the module displays "<strong>ERROR</strong>", then no supported mission was detected. This will not affect the bomb in any way.</p>
-					
-					<p>If the module displays "<strong>FATAL ERROR</strong>", then the module was unable to detect missions at all. 
-					This could be due to an exception from the code, or a computer-specific issue.
-					This will also not affect the bomb in any way, and can circumvent how a mission was meant to be played.</p>
-					
-					<h3>Solving</h3>
-					
-					<p>Under normal circumstances, the module will always solve the same way. 
-					However, certain missions may change how the module is solved.</p>
-					
-					<p><strong>To solve normally:</strong>
-					<br>
-					Press the button on the module when the seconds digits of the bomb's timer equal the sum of the digits in the serial number.</p>
-					
-                </div>
-                <div class="page-footer relative-footer">Page 1 of 1</div>
+    <div class="section">
+        <div class="page page-bg-01">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Mission Control</span>
             </div>
+            <div class="page-content">
+                <img src="img/Component/Mission Control.svg" class="diagram">
+                <h2>On the Subject of Mission Control</h2>
+                <p class="flavour-text">Houston, we have a bunch of problems.</p>
+
+                <p>
+                    This is a utility module used to alter how missions are usually played.
+                    This includes changing the bomb's time, changing the game music, or hiding modules until criteria are met.
+                    The effects are different depending on the mission.
+                </p>
+
+                <h3>Mission Detection</h3>
+                <p>
+                    If the module has successfully detected a supported mission, an ominous sound can be heard notifying its presence.
+                    The bomb will be affected by whatever is configured for that mission.
+                </p>
+
+                <p>If the module displays “<strong>ERROR</strong>”, then no supported mission was detected. This will not affect the bomb in any way.</p>
+
+                <p>
+                    If the module displays “<strong>FATAL ERROR</strong>”, then the module was unable to detect missions at all.
+                    This could be due to an exception from the code, or a computer-specific issue.
+                    This will also not affect the bomb in any way, and can circumvent how a mission was meant to be played.
+                </p>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1">
+    <title>Mission Control — Keep Talking and Nobody Explodes Module</title>
+    <link rel="stylesheet" type="text/css" href="css/font.css">
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <script src="js/ktane-utils.js"></script>
+</head>
+<body>
+    <div class="section">
+        <div class="page page-bg-01">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Mission Control</span>
+            </div>
+            <div class="page-content">
+                <img src="img/Component/Mission Control.svg" class="diagram">
+                <h2>On the Subject of Mission Control</h2>
+                <p class="flavour-text">Houston, we have a bunch of problems.</p>
+
+                <p>
+                    This is a utility module used to alter how missions are usually played.
+                    This includes changing the bomb's time, changing the game music, or hiding modules until criteria are met.
+                    The effects are different depending on the mission.
+                </p>
+
+                <h3>Mission Detection</h3>
+                <p>
+                    If the module has successfully detected a supported mission, an ominous sound can be heard notifying its presence.
+                    The bomb will be affected by whatever is configured for that mission.
+                </p>
+
+                <p>If the module displays “<strong>ERROR</strong>”, then no supported mission was detected. This will not affect the bomb in any way.</p>
+
+                <p>
+                    If the module displays “<strong>FATAL ERROR</strong>”, then the module was unable to detect missions at all.
+                    This could be due to an exception from the code, or a computer-specific issue.
+                    This will also not affect the bomb in any way, and can circumvent how a mission was meant to be played.
+                </p>
+
+                <h3>Solving</h3>
+                <p>
+                    Under normal circumstances, the module will always solve the same way.
+                    However, certain missions may change how the module is solved.
+                </p>
+
+                <p>
+                    <strong>Solving normally:</strong><br>
+                    Press the button on the module when the seconds digits of the bomb's timer equal the sum of the digits in the serial number.
+                </p>
+
+                <p>
+                    <strong>Dead End:</strong><br>
+                    On the larger bomb, the module functions like normal.
+                    The timer starts at normal speed but gradually accelerates as the bomb progresses.
+                    The highest speed it can reach without a boost from strikes is 400%.
+                </p>
+                <p>
+                    On the smaller bomb, the module cannot be interacted with and will solve once the larger bomb is defused.
+                    The timer will always display 55 seconds.
+                </p>
+
+                <p>
+                    <strong>Disconnected:</strong><br>
+                    The module functions like normal. If there is exactly one unsolved module left on the bomb, the timer increases to 600% speed, regardless of strikes.
+                </p>
+            </div>
+            <div class="page-footer relative-footer">Page 1 of 3</div>
+        </div>
+        <div class="page page-bg-02">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Mission Control</span>
+            </div>
+            <div class="page-content">
+                <p>
+                    <strong>For No Eyes Only:</strong><br>
+                    The screen will be completely black for the entire bomb until all modules are solved, making you unable to see anything.
+                    Pressing the button will make a mysterious voice read out a series of digits, which you can use to get the edgework for the bomb.
+                    The module will then solve afterwards. The button can be pressed as many times as you like to repeat the digits.
+                </p>
+                <p>
+                    The voice will say 28 digits. The order determines which piece of edgework is being communicated.
+                    <ul>
+                        <li>Digits 1-2: Number of batteries modulo 10 then number of battery holders.</li>
+                        <li>Digits 3-6: A four-digit octal number. Convert this number to binary.<br>A 1 represents that an indicator is present, using the table below.</li>
+                        <li>Digits 7-10: A four-digit octal number. Convert this number to binary.<br>A 1 represents that an indicator is lit, using the table below.
+                        <table style="text-align:center">
+                            <tr>
+                                <th>Bit</th>
+                                <td>11</td>
+                                <td>10</td>
+                                <td>9</td>
+                                <td>8</td>
+                                <td>7</td>
+                                <td>6</td>
+                                <td>5</td>
+                                <td>4</td>
+                                <td>3</td>
+                                <td>2</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <th>Ind.</th>
+                                <td>BOB</td>
+                                <td>CAR</td>
+                                <td>CLR</td>
+                                <td>FRK</td>
+                                <td>FRQ</td>
+                                <td>IND</td>
+                                <td>MSA</td>
+                                <td>NSA</td>
+                                <td>SIG</td>
+                                <td>SND</td>
+                                <td>TRN</td>
+                            </tr>
+                        </table><br></li>
+                        <li>Digits 11-16: Number of occurances of the following ports in this order:<br>DVI-D, Parallel, PS/2, Stereo RCA, RJ-45, Serial</li>
+                        <li>Digits 17-18: Number of port plates then number of empty port plates.</li>
+                        <li>Digits 19-28: A ten-digit number. Convert this number to base-36.<br>That is the serial number.</li>
+                    </ul>
+                </p>
+            </div>
+            <div class="page-footer relative-footer">Page 2 of 3</div>
+        </div>
+        <div class="page page-bg-03">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Mission Control</span>
+            </div>
+            <div class="page-content">
+                <p>
+                    <strong>Precise Instability:</strong><br>
+                    Whenever a module on the bomb strikes, all the modules disappear except for this one, the timer freezes, and a 30-second countdown will start on the module.
+                    If the button is pressed while the timer displays the correct digit, one strike will be subtracted from the bomb.
+                    Once the countdown ends, the timer resumes and the rest of the modules reappear, and the module returns to its normal state.
+                </p>
+                <p>
+                    The number you need to press the button on is based on either the starting time* or the most recent frozen time after a strike.
+                    If the frozen timer flickers between two numbers, use the higher number.
+                    Take that time modulo 20 seconds. If you get 0, make it 20.
+                    <span class="flavour-text">*The timer will play an animation at the start of the bomb.
+                    The starting time is the time displayed after the animation ends.</span>
+                </p>
+                <p>
+                    In addition, this module will also have to be solved normally.
+                    The countdown timer will still start even after this module is solved, and will still need to be interacted with.
+                    If at any point, the bomb exceeds the maximum strikes allotted, regardless if any were subtracted, the bomb will explode.
+                </p>
+            
+                <p>
+                    <strong>Wish:</strong><br>
+                    Press the button on the module to reveal a hidden module.
+                    If the module believes there aren’t enough solved modules on the bomb, 10% of the bomb's current time will be reduced.
+                    The module will solve once all hidden modules are revealed.
+                </p>
+            </div>
+            <div class="page-footer relative-footer">Page 3 of 3</div>
+        </div>
+    </div>
+</body>
+</html>
+                <h3>Solving</h3>
+                <p>
+                    Under normal circumstances, the module will always solve the same way.
+                    However, certain missions may change how the module is solved.
+                </p>
+
+                <p>
+                    <strong>Solving normally:</strong><br>
+                    Press the button on the module when the seconds digits of the bomb's timer equal the sum of the digits in the serial number.
+                </p>
+
+                <p>
+                    <strong>Dead End:</strong><br>
+                    On the larger bomb, the module functions like normal.
+                    The timer starts at normal speed but gradually accelerates as the bomb progresses.
+                    The highest speed it can reach without a boost from strikes is 400%.
+                </p>
+                <p>
+                    On the smaller bomb, the module cannot be interacted with and will solve once the larger bomb is defused.
+                    The timer will always display 55 seconds.
+                </p>
+
+                <p>
+                    <strong>Disconnected:</strong><br>
+                    The module functions like normal. If there is exactly one unsolved module left on the bomb, the timer increases to 600% speed, regardless of strikes.
+                </p>
+            </div>
+            <div class="page-footer relative-footer">Page 1 of 3</div>
+        </div>
+        <div class="page page-bg-02">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Mission Control</span>
+            </div>
+            <div class="page-content">
+                <p>
+                    <strong>For No Eyes Only:</strong><br>
+                    The screen will be completely black for the entire bomb until all modules are solved, making you unable to see anything.
+                    Pressing the button will make a mysterious voice read out a series of digits, which you can use to get the edgework for the bomb.
+                    The module will then solve afterwards. The button can be pressed as many times as you like to repeat the digits.
+                </p>
+                <p>
+                    The voice will say 28 digits. The order determines which piece of edgework is being communicated.
+                    <ul>
+                        <li>Digits 1-2: Number of batteries modulo 10 then number of battery holders.</li>
+                        <li>Digits 3-6: A four-digit octal number. Convert this number to binary.<br>A 1 represents that an indicator is present, using the table below.</li>
+                        <li>Digits 7-10: A four-digit octal number. Convert this number to binary.<br>A 1 represents that an indicator is lit, using the table below.
+                        <table style="text-align:center">
+                            <tr>
+                                <th>Bit</th>
+                                <td>11</td>
+                                <td>10</td>
+                                <td>9</td>
+                                <td>8</td>
+                                <td>7</td>
+                                <td>6</td>
+                                <td>5</td>
+                                <td>4</td>
+                                <td>3</td>
+                                <td>2</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <th>Ind.</th>
+                                <td>BOB</td>
+                                <td>CAR</td>
+                                <td>CLR</td>
+                                <td>FRK</td>
+                                <td>FRQ</td>
+                                <td>IND</td>
+                                <td>MSA</td>
+                                <td>NSA</td>
+                                <td>SIG</td>
+                                <td>SND</td>
+                                <td>TRN</td>
+                            </tr>
+                        </table><br></li>
+                        <li>Digits 11-16: Number of occurances of the following ports in this order:<br>DVI-D, Parallel, PS/2, Stereo RCA, RJ-45, Serial</li>
+                        <li>Digits 17-18: Number of port plates then number of empty port plates.</li>
+                        <li>Digits 19-28: A ten-digit number. Convert this number to base-36.<br>That is the serial number.</li>
+                    </ul>
+                </p>
+            </div>
+            <div class="page-footer relative-footer">Page 2 of 3</div>
+        </div>
+        <div class="page page-bg-03">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Mission Control</span>
+            </div>
+            <div class="page-content">
+                <p>
+                    <strong>Precise Instability:</strong><br>
+                    Whenever a module on the bomb strikes, all the modules disappear except for this one, the timer freezes, and a 30-second countdown will start on the module.
+                    If the button is pressed while the timer displays the correct digit, one strike will be subtracted from the bomb.
+                    Once the countdown ends, the timer resumes and the rest of the modules reappear, and the module returns to its normal state.
+                </p>
+                <p>
+                    The number you need to press the button on is based on either the starting time* or the most recent frozen time after a strike.
+                    If the frozen timer flickers between two numbers, use the higher number.
+                    Take that time modulo 20 seconds. If you get 0, make it 20.
+                </p>
+                <p>
+                    <span class="flavour-text">*The timer will play an animation at the start of the bomb.
+                    The starting time is the time displayed after the animation ends.</span>
+                </p>
+                <p>
+                    In addition, this module will also have to be solved normally.
+                    The countdown timer will still start even after this module is solved, and will still need to be interacted with.
+                    If at any point, the bomb exceeds the maximum strikes allotted, regardless if any were subtracted, the bomb will explode.
+                </p>
+            
+                <p>
+                    <strong>Wish:</strong><br>
+                    Press the button on the module to reveal a hidden module.
+                    If the module believes there aren’t enough solved modules on the bomb, 10% of the bomb's current time will be reduced.
+                    The module will solve once all hidden modules are revealed.
+                </p>
+            </div>
+            <div class="page-footer relative-footer">Page 3 of 3</div>
         </div>
     </div>
 </body>
