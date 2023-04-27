@@ -29,6 +29,11 @@ public static class TimerRate {
     public static float FromModule(KMNeedyModule module) {
         return module.GetComponent("BombComponent").GetValue<object>("Bomb").CallMethod<object>("GetTimer").GetValue<float>("GetRate");
     }
+
+    public static void SetFromModule(KMBombModule module, float v)
+    {
+        module.GetComponent("BombComponent").GetValue<object>("Bomb").CallMethod<object>("GetTimer").CallMethod("SetRateModifier", v);
+    }
 }
 
 public static class ReflectionHelper {
