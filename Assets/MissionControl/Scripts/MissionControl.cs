@@ -536,6 +536,11 @@ public class MissionControl : MonoBehaviour {
 
     private IEnumerator InitLostToTimeBomb()
     {
+        if (ZenModeActive || TimeModeActive) {
+            ButtonText.text = "FATAL ERROR";
+            StartCoroutine(FlickerTextRoutine());
+            yield break;
+        };
         /*
          * This entire section is denoted to be similar to how Time Mode handles scoring for each of the modules in this mission.
          * The major exception is due to fact that Time Mode has more precision when it comes to scoring.
@@ -553,13 +558,13 @@ public class MissionControl : MonoBehaviour {
             {   "ColoredSwitchesModule", "SetModule", "triamonds", "ChordQualities", "yellowArrowsModule",
                 "artPricing", "MysticSquareModule", "YahtzeeModule", "binaryTango", "masyuModule" } },
             { 3, new[]
-            {   "sqlCruel", "digisibility", "loopover", "spillingPaint", "soulscream",
-                "klaxon", "shikaku", "simonSelectsModule", "squeeze", "SouvenirModule",
+            {   "sqlCruel", "digisibility", "loopover", "spillingPaint",
+                "klaxon", "shikaku", "simonSelectsModule", "squeeze",
                 "TheHypercubeModule"} },
             { 4, new[]
             {   "KudosudokuModule", "PatternCubeModule", "unfairsRevenge", "WalkingCubeModule", "TripleTraversalModule",
                 "notX01", "violetCipher", "synesthesia", "buttonGrid", "coralCipher",
-                "notreDameCipher", "memoryPoker", "AzureButtonModule" } },
+                "notreDameCipher", "memoryPoker", "AzureButtonModule", "SouvenirModule", "soulscream" } },
 
         };
         //Debug.LogFormat("<Mission Control #{0}> DEBUG: Tier Distributions:\n{1}", moduleId,timeGainModTiersAll.Select(a => string.Format("[{0}: {1}]", a.Key, a.Value.Join(", "))).Join("\n"));
@@ -571,7 +576,8 @@ public class MissionControl : MonoBehaviour {
             if (curSolves.Any())
             {
                 var totalTimeToGain = 0f;
-                var timeGainsPerTier = new[] { 15f, 30f, 60f, 120f, 240f };
+                var timeGainsPerTier = new[] { 22.5f, 45f, 90f, 180f, 360f };
+                var timeMultipliersPerStrike = new[] { 1f, 1f, 0.5f, 0.5f, 0.25f, 0f };
                 //Debug.LogFormat("<Mission Control #{0}> DEBUG MODS SOLVED AT {2} REMAINING: {1}", moduleId, curSolves.Join(), Bomb.GetFormattedTime());
                 foreach (string nextSolve in curSolves)
                 {
@@ -579,7 +585,7 @@ public class MissionControl : MonoBehaviour {
                     //Debug.LogFormat("<Mission Control #{0}> DEBUG: {1} considered as tier {2}.", moduleId, nextSolve, lowestTierObtained + 1);
                     totalTimeToGain += timeGainsPerTier[lowestTierObtained];
                 }
-                var timePenalty = Mathf.Max(0f, 1f - (Bomb.GetStrikes() / 4f));
+                var timePenalty = Mathf.Max(0f, Bomb.GetStrikes() >= timeMultipliersPerStrike.Length ? timeMultipliersPerStrike.Last() : timeMultipliersPerStrike[Bomb.GetStrikes()]);
                 totalTimeToGain *= timePenalty;
                 TimeRemaining.FromModule(Module, Bomb.GetTime() + totalTimeToGain);
                 solvedModIDs.AddRange(curSolves);
