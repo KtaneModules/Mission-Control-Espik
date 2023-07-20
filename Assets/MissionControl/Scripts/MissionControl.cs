@@ -560,9 +560,9 @@ public class MissionControl : MonoBehaviour {
             { 3, new[]
             {   "sqlCruel", "digisibility", "loopover", "spillingPaint",
                 "klaxon", "shikaku", "simonSelectsModule", "squeeze",
-                "TheHypercubeModule"} },
+                "TheHypercubeModule", "MahjongQuizHard"} },
             { 4, new[]
-            {   "KudosudokuModule", "PatternCubeModule", "unfairsRevenge", "WalkingCubeModule", "TripleTraversalModule",
+            {   "KudosudokuModule", "unfairsRevenge", "WalkingCubeModule", "TripleTraversalModule",
                 "notX01", "violetCipher", "synesthesia", "buttonGrid", "coralCipher",
                 "notreDameCipher", "memoryPoker", "AzureButtonModule", "SouvenirModule", "soulscream" } },
 
