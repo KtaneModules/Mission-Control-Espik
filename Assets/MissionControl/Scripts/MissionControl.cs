@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -48,12 +49,14 @@ public class MissionControl : MonoBehaviour {
      * 4: Wish
      * 5: Precise Instability
      * 6: For No Eyes Only
+     * 7: Lost To Time
+     * 8: Flyer's Manual Curse / Flyer's Alternative Manual Curse
      */
 
     // Mission specific variables
     private bool bombSolved = false;
     private static bool deadEndSolve = false;
-    private readonly float DEADENDSTART = 12000.0f; // 12000
+    private const float DEADENDSTART = 12000.0f; // 12000
     private static float finishingTime = 55.0f;
     private float iteration = 0.0f;
 
@@ -85,8 +88,8 @@ public class MissionControl : MonoBehaviour {
     private int enteredSecond = 0;
     private bool enteredTimerNumber = false;
 
-    private readonly int JAM_STRIKE_LIMIT = 4;
-    private readonly float JAM_BOMB_TIME = 4800.0f;
+    private const int JAM_STRIKE_LIMIT = 4;
+    private const float JAM_BOMB_TIME = 4800.0f;
 
     private readonly string[] JAM_MODULES = { "3dTunnels", "AdjacentLettersModule", "atlantis", "bafflingBox", "boolMaze", "CheapCheckoutModule", "colorfulHexabuttons",
         "ColourFlash", "CrazyTalk", "cruelModulo", "cucumberModule", "decimation", "DecolourFlashModule", "digitString", "DiscoloredSquaresModule", "GlitchedButtonModule",
@@ -179,6 +182,17 @@ public class MissionControl : MonoBehaviour {
             mode = 6;
             FadeInBlack();
             edgeworkNumber = GetEdgeworkNumber();
+            break;
+        case "mod_missionpack_VFlyer_missionTimeConstraint": // Lost To Time
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Lost To Time\"", moduleId);
+            missionFound = true;
+            mode = 7;
+            break;
+        case "mod_missionpack_VFlyer_missionModuleCorruption": // Flyer's Manual Curse
+        case "mod_missionpack_VFlyer_missionModuleCorruptionALT": // Flyer's Alterative Manual Curse
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Flyer's Manual Curse\" Mission ran can be an ALT version.", moduleId);
+            missionFound = true;
+            mode = 8;
             break;
         }
     }
@@ -504,6 +518,81 @@ public class MissionControl : MonoBehaviour {
                 bombSolved = true;
             }
             break;
+        case 8: // Flyer's Manual Curse / Flyer's Alterative Manual Curse
+            var solveCount = Bomb.GetSolvedModuleNames().Count;
+            var toleratedStrikeLimit = solveCount / 5 + 1;
+                if (toleratedStrikeLimit < 8)
+                    ButtonText.text = string.Format("{0} / {1}\n{2}", solveCount, toleratedStrikeLimit * 5, toleratedStrikeLimit.ToString("0x"));
+                else
+                    ButtonText.text = "MAX REACHED\n8x";
+            if (Bomb.GetStrikes() >= toleratedStrikeLimit && !(ZenModeActive || TimeModeActive))
+                {
+                    Debug.LogFormat("[Mission Control #{0}] Say goodbye to that attempt. At {1}, you solved {2} module(s) and struck {3} time(s). This mission cannot tolerate that many strikes in this state.", moduleId, Bomb.GetFormattedTime(), Bomb.GetSolvedModuleNames().Count, Bomb.GetStrikes());
+                    TimeRemaining.FromModule(Module, 0f);
+                }
+            break;
+        }
+    }
+
+    private IEnumerator InitLostToTimeBomb()
+    {
+        if (ZenModeActive || TimeModeActive) {
+            ButtonText.text = "FATAL ERROR";
+            StartCoroutine(FlickerTextRoutine());
+            yield break;
+        };
+        /*
+         * This entire section is denoted to be similar to how Time Mode handles scoring for each of the modules in this mission.
+         * The major exception is due to fact that Time Mode has more precision when it comes to scoring.
+         */
+        var solvedModIDs = Bomb.GetSolvedModuleIDs();
+        var timeGainModTiersAll = new Dictionary<int, IEnumerable<string>>() {
+            { 0, new[]
+            {   "MissionControl", "AnagramsModule", "whoOF", "BigButton", "Numpath",
+                "NotMemory", "LightBulbs", "modulo", "cruelDigitalRootModule" } },
+            { 1, new[]
+            {   "gemDivision", "fourOperands", "colorCycleButton", "Password", "diffusion",
+                "EncryptedDice", "daylightDirections", "DoubleOhModule", "LabelPrioritiesModule", "ColourFlash",
+                "nonverbalSimon", "VCRCS", "booleanVennModule", "theRule", "YellowButtonModule", "factoryCubes" } },
+            { 2, new[]
+            {   "ColoredSwitchesModule", "SetModule", "triamonds", "ChordQualities", "yellowArrowsModule",
+                "artPricing", "MysticSquareModule", "YahtzeeModule", "binaryTango", "masyuModule" } },
+            { 3, new[]
+            {   "sqlCruel", "digisibility", "loopover", "spillingPaint",
+                "klaxon", "shikaku", "simonSelectsModule", "squeeze",
+                "TheHypercubeModule", "MahjongQuizHard"} },
+            { 4, new[]
+            {   "KudosudokuModule", "unfairsRevenge", "WalkingCubeModule", "TripleTraversalModule",
+                "notX01", "violetCipher", "synesthesia", "buttonGrid", "coralCipher",
+                "notreDameCipher", "memoryPoker", "AzureButtonModule", "SouvenirModule", "soulscream" } },
+
+        };
+        //Debug.LogFormat("<Mission Control #{0}> DEBUG: Tier Distributions:\n{1}", moduleId,timeGainModTiersAll.Select(a => string.Format("[{0}: {1}]", a.Key, a.Value.Join(", "))).Join("\n"));
+        while (!bombSolved && isActiveAndEnabled)
+        {
+            var curSolves = Bomb.GetSolvedModuleIDs();
+            foreach (string modName in solvedModIDs)
+                curSolves.Remove(modName);
+            if (curSolves.Any())
+            {
+                var totalTimeToGain = 0f;
+                var timeGainsPerTier = new[] { 22.5f, 45f, 90f, 180f, 360f };
+                var timeMultipliersPerStrike = new[] { 1f, 1f, 0.5f, 0.5f, 0.25f, 0f };
+                //Debug.LogFormat("<Mission Control #{0}> DEBUG MODS SOLVED AT {2} REMAINING: {1}", moduleId, curSolves.Join(), Bomb.GetFormattedTime());
+                foreach (string nextSolve in curSolves)
+                {
+                    var lowestTierObtained = timeGainModTiersAll.Keys.FirstOrDefault(a => timeGainModTiersAll[a].Contains(nextSolve));
+                    //Debug.LogFormat("<Mission Control #{0}> DEBUG: {1} considered as tier {2}.", moduleId, nextSolve, lowestTierObtained + 1);
+                    totalTimeToGain += timeGainsPerTier[lowestTierObtained];
+                }
+                var timePenalty = Mathf.Max(0f, Bomb.GetStrikes() >= timeMultipliersPerStrike.Length ? timeMultipliersPerStrike.Last() : timeMultipliersPerStrike[Bomb.GetStrikes()]);
+                totalTimeToGain *= timePenalty;
+                TimeRemaining.FromModule(Module, Bomb.GetTime() + totalTimeToGain);
+                solvedModIDs.AddRange(curSolves);
+            }
+            TimerRate.SetFromModule(Module, Mathf.Max(1f, 1f + Bomb.GetStrikes() - 4));
+            yield return null;
+            bombSolved = Bomb.GetSolvedModuleIDs().Count >= Bomb.GetSolvableModuleIDs().Count;
         }
     }
 
@@ -686,8 +775,19 @@ public class MissionControl : MonoBehaviour {
                 Audio.PlaySoundAtTransform("missionControl_inEffect", transform);
             }
 
-            if (mode == 5)
-                StartCoroutine(InitJamBomb());
+            switch (mode)
+            {
+                case 5:
+                    StartCoroutine(InitJamBomb());
+                    break;
+                case 7:
+                    StartCoroutine(InitLostToTimeBomb());
+                    break;
+                case 8:
+                    flickerText = true;
+                    StartCoroutine(FlickerTextRoutine());
+                    break;
+            }
         }
 
         else {
@@ -1063,6 +1163,7 @@ public class MissionControl : MonoBehaviour {
     #pragma warning disable 414
     private bool ZenModeActive;
     private bool TimeModeActive;
+    private bool TwitchPlaysActive;
     #pragma warning restore 414
 
     // Twitch Plays command handler - by eXish
