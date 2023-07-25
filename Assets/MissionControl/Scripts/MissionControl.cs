@@ -139,6 +139,7 @@ public class MissionControl : MonoBehaviour {
     private void Start() {
         StartCoroutine(AnimateButton());
         mission = GetMission();
+        Debug.LogFormat("<Mission Control #{0}> Mission: {1}", moduleId, mission);
 
         switch (mission) {
         case "undefined":
@@ -146,7 +147,7 @@ public class MissionControl : MonoBehaviour {
             break;
 
         case "mod_dead_end_deadend": // Dead End
-            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Dead End\"", moduleId);
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Dead End\".", moduleId);
             missionFound = true;
             mode = Bomb.GetSolvableModuleNames().Count() == 1 ? 2 : 1;
 
@@ -156,20 +157,20 @@ public class MissionControl : MonoBehaviour {
             break;
 
         case "mod_ktane_EspikHardMissions_disconnected": // Disconnected
-            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Disconnected\"", moduleId);
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Disconnected\".", moduleId);
             missionFound = true;
             mode = 3;
             break;
 
         case "mod_ktane_EspikHardMissions_wish": // Wish
-            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Wish\"", moduleId);
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Wish\".", moduleId);
             missionFound = true;
             mode = 4;
             StartCoroutine(HideWishModules());
             break;
 
         case "mod_jamMissions_Espik": // Precise Instability
-            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Precise Instability\"", moduleId);
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Precise Instability\".", moduleId);
             missionFound = true;
             mode = 5;
             StartCoroutine(HideJamModules());
@@ -177,20 +178,20 @@ public class MissionControl : MonoBehaviour {
             break;
 
         case "mod_blindfoldMissions_blindBomb": // For No Eyes Only
-            Debug.LogFormat("[Mission Control #{0}] Found mission: \"For No Eyes Only\"", moduleId);
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"For No Eyes Only\".", moduleId);
             missionFound = true;
             mode = 6;
             FadeInBlack();
             edgeworkNumber = GetEdgeworkNumber();
             break;
         case "mod_missionpack_VFlyer_missionTimeConstraint": // Lost To Time
-            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Lost To Time\"", moduleId);
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Lost To Time\".", moduleId);
             missionFound = true;
             mode = 7;
             break;
         case "mod_missionpack_VFlyer_missionModuleCorruption": // Flyer's Manual Curse
         case "mod_missionpack_VFlyer_missionModuleCorruptionALT": // Flyer's Alterative Manual Curse
-            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Flyer's Manual Curse\" Mission ran can be an ALT version.", moduleId);
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Flyer's Manual Curse\". Mission ran can be an ALT version.", moduleId);
             missionFound = true;
             mode = 8;
             break;
@@ -518,6 +519,7 @@ public class MissionControl : MonoBehaviour {
                 bombSolved = true;
             }
             break;
+
         case 8: // Flyer's Manual Curse / Flyer's Alterative Manual Curse
             var solveCount = Bomb.GetSolvedModuleNames().Count;
             var toleratedStrikeLimit = solveCount / 5 + 1;
