@@ -27,6 +27,9 @@ public class MissionControl : MonoBehaviour {
     public Material BorderMaterial;
     public Material VignetteMaterial;
 
+    public SpriteRenderer GoldenSlot;
+    public Sprite[] GoldenSprites;
+
     // Logging info
     private static int moduleIdCounter = 1;
     private int moduleId;
@@ -51,18 +54,24 @@ public class MissionControl : MonoBehaviour {
      * 6: For No Eyes Only
      * 7: Lost To Time
      * 8: Flyer's Manual Curse / Flyer's Alternative Manual Curse
+     * 9: The Father of the Abyss
+     * 10: The Mountain / The Mountain B-Side
      */
+
 
     // Mission specific variables
     private bool bombSolved = false;
+
+    // Dead End
     private static bool deadEndSolve = false;
     private const float DEADENDSTART = 12000.0f; // 12000
     private static float finishingTime = 55.0f;
     private float iteration = 0.0f;
 
+    // Disconnected
     private float currentSecond = 0.0f;
 
-
+    // Wish
     private readonly int[] WISH_THRESHOLDS = { 13, 26, 33, 41, 49, 59, 65, 71, 78, 83, 88, 93 };
     private readonly string[] WISH_MODULES = { "notX01", "deceptiveRainbowArrowsModule", "cube", "ChaoticCountdownModule", "whiteCipher", 
         "blackCipher", "bamboozlingButton", "TripleTraversalModule", "rgbMaze", "perceptron" };
@@ -74,7 +83,7 @@ public class MissionControl : MonoBehaviour {
     private KMBombModule[] mystifiedModule = new KMBombModule[12];
     private Vector3[] mystifyScale = new Vector3[12];
 
-
+    // Precise Instability
     private bool acceptingStrikes = false;
     private bool readyToChange = false;
     private int actualStrikes = 0;
@@ -106,14 +115,21 @@ public class MissionControl : MonoBehaviour {
     private readonly float BUTTON_GREEN = 0.75f;
     private readonly float BUTTON_BLUE = 0.5f;
 
+    private bool goldenPresent = false;
+    private bool goldenActive = false;
+
+    // For No Eyes Only
     private CameraPostProcess postProcess = null;
     private Transform cameraPos = null;
+    private const int BLINDMODS = 47; // 47
 
-    private string edgeworkNumber = "";
+    // The Father of the Abyss
+    private const float ABYSSTIME = 12000.0f; // 12000
+    private const int ABYSSMODS = 47; // 47
+
 
     // Mod settings
     private MissionControlSettings Settings;
-
     sealed class MissionControlSettings {
         public bool IntroSound = true;
     }
@@ -181,19 +197,42 @@ public class MissionControl : MonoBehaviour {
             Debug.LogFormat("[Mission Control #{0}] Found mission: \"For No Eyes Only\".", moduleId);
             missionFound = true;
             mode = 6;
-            FadeInBlack();
-            edgeworkNumber = GetEdgeworkNumber();
+            SetBlackScreen();
             break;
+
+        case "mod_blindfoldMissions_blindBombTest": // For No Eyes Only [Practice]
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"For No Eyes Only [Practice]\".", moduleId);
+            missionFound = true;
+            mode = 6;
+            break;
+
         case "mod_missionpack_VFlyer_missionTimeConstraint": // Lost To Time
             Debug.LogFormat("[Mission Control #{0}] Found mission: \"Lost To Time\".", moduleId);
             missionFound = true;
             mode = 7;
             break;
+
         case "mod_missionpack_VFlyer_missionModuleCorruption": // Flyer's Manual Curse
         case "mod_missionpack_VFlyer_missionModuleCorruptionALT": // Flyer's Alterative Manual Curse
             Debug.LogFormat("[Mission Control #{0}] Found mission: \"Flyer's Manual Curse\". Mission ran can be an ALT version.", moduleId);
             missionFound = true;
             mode = 8;
+            break;
+
+        case "mod_DansPissionMack_redacted": // The Father of the Abyss
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"The Father of the Abyss\".", moduleId);
+            missionFound = true;
+            mode = 9;
+            break;
+
+        case "mod_theBombsBlanMade_mountain": //The Mountain
+        case "mod_theBombsBlanMade_mountainBside": //The Mountain B-Side
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"The Mountain{1}\".", moduleId, mission.Contains("Bside") ? " B-Side" : "");
+            missionFound = true;
+            mode = 10;
+            ButtonTransform.localEulerAngles = new Vector3(0f, 0f, 270f);
+            goldenPresent = true;
+            StartCoroutine(AnimateGolden());
             break;
         }
     }
@@ -393,6 +432,8 @@ public class MissionControl : MonoBehaviour {
 
     // Affects the bomb based on mission rules
     private void Update() {
+        var solveCount = Bomb.GetSolvedModuleNames().Count;
+
         switch (mode) {
         case 1: // Dead End (Big)
             if (!bombSolved) {
@@ -481,7 +522,7 @@ public class MissionControl : MonoBehaviour {
                 // Bomb has 4+ strikes
                 if (actualStrikes >= JAM_STRIKE_LIMIT && !ZenModeActive && !TimeModeActive) {
                     Debug.LogFormat("[Mission Control #{0}] Strike limit reached! Detonating bomb.", moduleId);
-                    StartCoroutine(DetonateBomb());
+                    StartCoroutine(DetonateBomb(JAM_STRIKE_LIMIT));
                 }
 
                 else {
@@ -514,14 +555,13 @@ public class MissionControl : MonoBehaviour {
             break;
 
         case 6: // For No Eyes Only
-            if (!bombSolved && Bomb.GetSolvedModuleNames().Count() >= 47) {
-                StartCoroutine(FadeOutBlack());
+            if (!bombSolved && Bomb.GetSolvedModuleNames().Count() >= BLINDMODS) {
+                StartCoroutine(FadeOutBlack(20.0f));
                 bombSolved = true;
             }
             break;
 
         case 8: // Flyer's Manual Curse / Flyer's Alterative Manual Curse
-            var solveCount = Bomb.GetSolvedModuleNames().Count;
             var toleratedStrikeLimit = solveCount / 5 + 1;
                 if (toleratedStrikeLimit < 8)
                     ButtonText.text = string.Format("{0} / {1}\n{2}", solveCount, toleratedStrikeLimit * 5, toleratedStrikeLimit.ToString("0x"));
@@ -533,9 +573,44 @@ public class MissionControl : MonoBehaviour {
                     TimeRemaining.FromModule(Module, 0f);
                 }
             break;
+        
+        case 9: // The Father of the Abyss
+            if (!bombSolved && Bomb.GetSolvedModuleNames().Count() >= ABYSSMODS) {
+                StartCoroutine(FadeOutBlack(10.0f));
+                bombSolved = true;
+            }
+            break;
+
+        case 10: //The Mountain / The Mountain B-Side
+            if (solveCount == 1 && !goldenActive) {
+                Debug.Log(Bomb.GetSolvedModuleIDs()[0]);
+                if (Bomb.GetSolvedModuleIDs()[0] == "MissionControl") {
+                    goldenActive = true;
+                    TimeRemaining.FromModule(Module, Bomb.GetTime() + 3600f);
+                }
+                else {
+                    goldenPresent = false;
+                    GoldenSlot.sprite = null;
+                    ButtonTransform.localEulerAngles = new Vector3(0f, 0f, 90f);
+                }
+            }
+            if (solveCount == 49 && goldenActive && goldenPresent) {
+                goldenPresent = false;
+                StartCoroutine(GoldenCollect());
+            }
+            if (Bomb.GetStrikes() > 0 && goldenActive) {
+                Debug.LogFormat("[Mission Control #{0}] Struck with the golden strawberry. Detonating bomb.", moduleId);
+                StartCoroutine(DetonateBomb(5));
+            }
+            if (Bomb.GetTime() < 3600f && goldenActive) {
+                Debug.LogFormat("[Mission Control #{0}] Ran out of time with the golden strawberry. Detonating bomb.", moduleId);
+                StartCoroutine(DetonateBomb(5));
+            }
+            break;
         }
     }
 
+    // Lost To Time
     private IEnumerator InitLostToTimeBomb()
     {
         if (ZenModeActive || TimeModeActive) {
@@ -598,9 +673,10 @@ public class MissionControl : MonoBehaviour {
         }
     }
 
+
     // Strikes the bomb until it explodes
-    private IEnumerator DetonateBomb() {
-        while (Bomb.GetStrikes() < JAM_STRIKE_LIMIT) {
+    private IEnumerator DetonateBomb(int n) {
+        while (Bomb.GetStrikes() < n) {
             Module.HandleStrike();
             yield return new WaitForSeconds(0.02f);
         }
@@ -676,6 +752,38 @@ public class MissionControl : MonoBehaviour {
         }
 
         yield return null;
+    }
+    
+
+    //Animates the golden strawberry for The Mountain
+    private IEnumerator AnimateGolden() {
+        int goldenFrame = 0;
+        while (goldenPresent) {
+            yield return new WaitForSeconds(0.066f);
+            goldenFrame = (goldenFrame + 1) % 6;
+            GoldenSlot.sprite = GoldenSprites[goldenFrame];
+            GoldenSlot.transform.localPosition = new Vector3(0f, 0.03f, (float)Math.Sin(Bomb.GetTime() % 6.2831853f) * 0.005f - 0.0025f);
+            yield return null;
+        }
+    }
+
+    private IEnumerator GoldenCollect() {
+        for (int g = 6; g < 20; g++) {
+            yield return new WaitForSeconds(g != 15 ? 0.09f : 0.6f);
+            GoldenSlot.sprite = GoldenSprites[g];
+            if (g == 13) { StartCoroutine(GoldenFlash()); }
+            yield return null;
+        }
+        GoldenSlot.sprite = null;
+    }
+
+    private IEnumerator GoldenFlash() {
+        bool flashBool = false;
+        while (true) {
+            flashBool = !flashBool;
+            GoldenSlot.color = new Color(1f, flashBool ? 1f : 0.69f, 0.69f);
+            yield return new WaitForSeconds(0.06f);
+        }
     }
 
 
@@ -769,6 +877,7 @@ public class MissionControl : MonoBehaviour {
         yield return null;
     }
 
+
     // Lights turn on
     private void OnActivate() {
         if (missionFound) {
@@ -777,17 +886,19 @@ public class MissionControl : MonoBehaviour {
                 Audio.PlaySoundAtTransform("missionControl_inEffect", transform);
             }
 
-            switch (mode)
-            {
-                case 5:
+            switch (mode) {
+                case 5: // Precise Instability
                     StartCoroutine(InitJamBomb());
                     break;
-                case 7:
+                case 7: // Lost To Time
                     StartCoroutine(InitLostToTimeBomb());
                     break;
-                case 8:
+                case 8: // Flyer's Manual Curse
                     flickerText = true;
                     StartCoroutine(FlickerTextRoutine());
+                    break;
+                case 9: // The Father of the Abyss
+                    StartCoroutine(FadeInBlack(10.0f, true));
                     break;
             }
         }
@@ -822,7 +933,6 @@ public class MissionControl : MonoBehaviour {
         }
     }
 
-
     // Makes the text fade in and out
     private IEnumerator FlickerTextRoutine() {
         while (flickerText) {
@@ -845,7 +955,6 @@ public class MissionControl : MonoBehaviour {
         ButtonText.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
         ButtonBigText.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
     }
-
 
     // Gets the mission - code by S.
     private string GetMission() {
@@ -897,8 +1006,8 @@ public class MissionControl : MonoBehaviour {
         }
     }
 
-    // Fades in the black screen
-    private void FadeInBlack() {
+    // Makes the screen completely black
+    private void SetBlackScreen() {
         if (postProcess != null) {
             DestroyImmediate(postProcess);
         }
@@ -909,10 +1018,38 @@ public class MissionControl : MonoBehaviour {
         postProcess.Vignette = 10000.0f;
     }
 
+    // Fades in the black screen
+    private IEnumerator FadeInBlack(float amplifier, bool exponential, float speed = 1.0f / ABYSSTIME) {
+        if (postProcess != null) {
+            DestroyImmediate(postProcess);
+        }
+
+        postProcess = cameraPos.gameObject.AddComponent<CameraPostProcess>();
+        postProcess.PostProcessMaterial = new Material(VignetteMaterial);
+
+        if (exponential) {
+            for (float progress = 0.0f; progress < 1.0f; progress += Time.deltaTime * speed) {
+                postProcess.Vignette = (float)(Math.Pow(progress, 2) * amplifier);
+
+                yield return null;
+            }
+        }
+
+        else {
+            for (float progress = 0.0f; progress < 1.0f; progress += Time.deltaTime * speed) {
+                postProcess.Vignette = progress * amplifier;
+
+                yield return null;
+            }
+        }
+
+        postProcess.Vignette = amplifier;
+    }
+
     // Fades out the black screen
-    private IEnumerator FadeOutBlack(float speed = 1.0f) {
+    private IEnumerator FadeOutBlack(float amplifier, float speed = 1.0f) {
         for (float progress = 1.0f - Time.deltaTime * speed; progress >= 0.0f; progress -= Time.deltaTime * speed) {
-            postProcess.Vignette = progress * 20.0f;
+            postProcess.Vignette = progress * amplifier;
 
             yield return null;
         }
@@ -924,151 +1061,62 @@ public class MissionControl : MonoBehaviour {
     }
 
 
-    // Gets the number for edgework
-    private string GetEdgeworkNumber() {
-        canPressButton = false;
-        string str = "";
-
-        str += (Bomb.GetBatteryCount() % 10).ToString();
-        str += (Bomb.GetBatteryHolderCount() % 10).ToString();
-
-        int indicatorNumber = 0;
-
-        if (Bomb.IsIndicatorPresent(Indicator.BOB)) { indicatorNumber += 1024; }
-        if (Bomb.IsIndicatorPresent(Indicator.CAR)) { indicatorNumber += 512; }
-        if (Bomb.IsIndicatorPresent(Indicator.CLR)) { indicatorNumber += 256; }
-        if (Bomb.IsIndicatorPresent(Indicator.FRK)) { indicatorNumber += 128; }
-        if (Bomb.IsIndicatorPresent(Indicator.FRQ)) { indicatorNumber += 64; }
-        if (Bomb.IsIndicatorPresent(Indicator.IND)) { indicatorNumber += 32; }
-        if (Bomb.IsIndicatorPresent(Indicator.MSA)) { indicatorNumber += 16; }
-        if (Bomb.IsIndicatorPresent(Indicator.NSA)) { indicatorNumber += 8; }
-        if (Bomb.IsIndicatorPresent(Indicator.SIG)) { indicatorNumber += 4; }
-        if (Bomb.IsIndicatorPresent(Indicator.SND)) { indicatorNumber += 2; }
-        if (Bomb.IsIndicatorPresent(Indicator.TRN)) { indicatorNumber += 1; }
-
-        string valueStr = Convert.ToString(indicatorNumber, 8);
-        str += valueStr.PadLeft(4, '0');
-
-        indicatorNumber = 0;
-
-        if (Bomb.IsIndicatorOn(Indicator.BOB)) { indicatorNumber += 1024; }
-        if (Bomb.IsIndicatorOn(Indicator.CAR)) { indicatorNumber += 512; }
-        if (Bomb.IsIndicatorOn(Indicator.CLR)) { indicatorNumber += 256; }
-        if (Bomb.IsIndicatorOn(Indicator.FRK)) { indicatorNumber += 128; }
-        if (Bomb.IsIndicatorOn(Indicator.FRQ)) { indicatorNumber += 64; }
-        if (Bomb.IsIndicatorOn(Indicator.IND)) { indicatorNumber += 32; }
-        if (Bomb.IsIndicatorOn(Indicator.MSA)) { indicatorNumber += 16; }
-        if (Bomb.IsIndicatorOn(Indicator.NSA)) { indicatorNumber += 8; }
-        if (Bomb.IsIndicatorOn(Indicator.SIG)) { indicatorNumber += 4; }
-        if (Bomb.IsIndicatorOn(Indicator.SND)) { indicatorNumber += 2; }
-        if (Bomb.IsIndicatorOn(Indicator.TRN)) { indicatorNumber += 1; }
-
-        valueStr = Convert.ToString(indicatorNumber, 8);
-        str += valueStr.PadLeft(4, '0');
-
-        str += Bomb.GetPortCount(Port.DVI).ToString();
-        str += Bomb.GetPortCount(Port.Parallel).ToString();
-        str += Bomb.GetPortCount(Port.PS2).ToString();
-        str += Bomb.GetPortCount(Port.StereoRCA).ToString();
-        str += Bomb.GetPortCount(Port.RJ45).ToString();
-        str += Bomb.GetPortCount(Port.Serial).ToString();
-
-        str += Bomb.GetPortPlateCount().ToString();
-
-        int emptyPlateCount = 0;
-        foreach (object[] plate in Bomb.GetPortPlates()) {
-            if (plate.Length == 0)
-                emptyPlateCount++;
-        }
-
-        str += emptyPlateCount.ToString();
-
+    // Reading the serial number
+    private IEnumerator ReadSerialNumber() {
         string serialNumber = Bomb.GetSerialNumber();
-        uint snConvert = 0;
-        
-        for (int i = 0; i < 6; i++)
-            snConvert += GetSerialNumberValue(serialNumber[i], i);
-
-        str += snConvert.ToString().PadLeft(10, '0');
-
-        Debug.LogFormat("[Mission Control #{0}] The number received by the edgework is {1}", moduleId, str);
-        canPressButton = true;
-        return str;
-    }
-
-    // Gets the base-36 values of the serial number
-    private uint GetSerialNumberValue(char character, int pos) {
-        uint multiplier = (uint) Math.Pow(36, 5 - pos);
-
-        switch (character) {
-            case 'Z': return 35 * multiplier;
-            case 'Y': return 34 * multiplier;
-            case 'X': return 33 * multiplier;
-            case 'W': return 32 * multiplier;
-            case 'V': return 31 * multiplier;
-            case 'U': return 30 * multiplier;
-            case 'T': return 29 * multiplier;
-            case 'S': return 28 * multiplier;
-            case 'R': return 27 * multiplier;
-            case 'Q': return 26 * multiplier;
-            case 'P': return 25 * multiplier;
-            case 'O': return 24 * multiplier;
-            case 'N': return 23 * multiplier;
-            case 'M': return 22 * multiplier;
-            case 'L': return 21 * multiplier;
-            case 'K': return 20 * multiplier;
-            case 'J': return 19 * multiplier;
-            case 'I': return 18 * multiplier;
-            case 'H': return 17 * multiplier;
-            case 'G': return 16 * multiplier;
-            case 'F': return 15 * multiplier;
-            case 'E': return 14 * multiplier;
-            case 'D': return 13 * multiplier;
-            case 'C': return 12 * multiplier;
-            case 'B': return 11 * multiplier;
-            case 'A': return 10 * multiplier;
-            case '9': return 9 * multiplier;
-            case '8': return 8 * multiplier;
-            case '7': return 7 * multiplier;
-            case '6': return 6 * multiplier;
-            case '5': return 5 * multiplier;
-            case '4': return 4 * multiplier;
-            case '3': return 3 * multiplier;
-            case '2': return 2 * multiplier;
-            case '1': return 1 * multiplier;
-            default: return 0;
-        }
-    }
-
-
-    // Reading the edgework number
-    private IEnumerator ReadEdgework() {
         yield return new WaitForSeconds(4.0f);
 
         ButtonBigText.color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
-        for (int i = 0; i < edgeworkNumber.Length; i++) {
-            ButtonBigText.text = edgeworkNumber[i].ToString();
-            switch (edgeworkNumber[i]) {
-                case '9': Audio.PlaySoundAtTransform("missionControl_9", transform); break;
-                case '8': Audio.PlaySoundAtTransform("missionControl_8", transform); break;
-                case '7': Audio.PlaySoundAtTransform("missionControl_7", transform); break;
-                case '6': Audio.PlaySoundAtTransform("missionControl_6", transform); break;
-                case '5': Audio.PlaySoundAtTransform("missionControl_5", transform); break;
-                case '4': Audio.PlaySoundAtTransform("missionControl_4", transform); break;
-                case '3': Audio.PlaySoundAtTransform("missionControl_3", transform); break;
-                case '2': Audio.PlaySoundAtTransform("missionControl_2", transform); break;
-                case '1': Audio.PlaySoundAtTransform("missionControl_1", transform); break;
-                default: Audio.PlaySoundAtTransform("missionControl_0", transform); break;
+        for (int i = 0; i < serialNumber.Length; i++) {
+            ButtonBigText.text = serialNumber[i].ToString();
+            switch (serialNumber[i]) {
+                case 'Z': Audio.PlaySoundAtTransform("missionControl_-26", transform); break;
+                case 'Y': Audio.PlaySoundAtTransform("missionControl_-25", transform); break;
+                case 'X': Audio.PlaySoundAtTransform("missionControl_-24", transform); break;
+                case 'W': Audio.PlaySoundAtTransform("missionControl_-23", transform); break;
+                case 'V': Audio.PlaySoundAtTransform("missionControl_-22", transform); break;
+                case 'U': Audio.PlaySoundAtTransform("missionControl_-21", transform); break;
+                case 'T': Audio.PlaySoundAtTransform("missionControl_-20", transform); break;
+                case 'S': Audio.PlaySoundAtTransform("missionControl_-19", transform); break;
+                case 'R': Audio.PlaySoundAtTransform("missionControl_-18", transform); break;
+                case 'Q': Audio.PlaySoundAtTransform("missionControl_-17", transform); break;
+                case 'P': Audio.PlaySoundAtTransform("missionControl_-16", transform); break;
+                case 'O': Audio.PlaySoundAtTransform("missionControl_-15", transform); break;
+                case 'N': Audio.PlaySoundAtTransform("missionControl_-14", transform); break;
+                case 'M': Audio.PlaySoundAtTransform("missionControl_-13", transform); break;
+                case 'L': Audio.PlaySoundAtTransform("missionControl_-12", transform); break;
+                case 'K': Audio.PlaySoundAtTransform("missionControl_-11", transform); break;
+                case 'J': Audio.PlaySoundAtTransform("missionControl_-10", transform); break;
+                case 'I': Audio.PlaySoundAtTransform("missionControl_-09", transform); break;
+                case 'H': Audio.PlaySoundAtTransform("missionControl_-08", transform); break;
+                case 'G': Audio.PlaySoundAtTransform("missionControl_-07", transform); break;
+                case 'F': Audio.PlaySoundAtTransform("missionControl_-06", transform); break;
+                case 'E': Audio.PlaySoundAtTransform("missionControl_-05", transform); break;
+                case 'D': Audio.PlaySoundAtTransform("missionControl_-04", transform); break;
+                case 'C': Audio.PlaySoundAtTransform("missionControl_-03", transform); break;
+                case 'B': Audio.PlaySoundAtTransform("missionControl_-02", transform); break;
+                case 'A': Audio.PlaySoundAtTransform("missionControl_-01", transform); break;
+                case '9': Audio.PlaySoundAtTransform("missionControl_-36", transform); break;
+                case '8': Audio.PlaySoundAtTransform("missionControl_-35", transform); break;
+                case '7': Audio.PlaySoundAtTransform("missionControl_-34", transform); break;
+                case '6': Audio.PlaySoundAtTransform("missionControl_-33", transform); break;
+                case '5': Audio.PlaySoundAtTransform("missionControl_-32", transform); break;
+                case '4': Audio.PlaySoundAtTransform("missionControl_-31", transform); break;
+                case '3': Audio.PlaySoundAtTransform("missionControl_-30", transform); break;
+                case '2': Audio.PlaySoundAtTransform("missionControl_-29", transform); break;
+                case '1': Audio.PlaySoundAtTransform("missionControl_-28", transform); break;
+                default: Audio.PlaySoundAtTransform("missionControl_-27", transform); break;
             }
 
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(2.0f);
         }
 
         ButtonBigText.text = "";
-        yield return new WaitForSeconds(3.0f);
+        yield return new WaitForSeconds(2.0f);
         Solve();
         canPressButton = true;
     }
+
 
     // Button is pressed
     private void ButtonPressed() {
@@ -1113,8 +1161,13 @@ public class MissionControl : MonoBehaviour {
             canPressButton = false;
             Audio.PlaySoundAtTransform("missionControl_buttonPress", transform);
             Audio.PlaySoundAtTransform("missionControl_edgeworkRead", transform);
-            Debug.LogFormat("[Mission Control #{0}] You pressed the button. Reading the edgework number now.", moduleId);
-            StartCoroutine(ReadEdgework());
+            Debug.LogFormat("[Mission Control #{0}] You pressed the button. Reading the serial number now.", moduleId);
+            StartCoroutine(ReadSerialNumber());
+        }
+
+        // The Mountain
+        else if (mode == 10) {
+            Solve();
         }
 
         // Unmodified rules
@@ -1129,7 +1182,6 @@ public class MissionControl : MonoBehaviour {
                 Strike();
         }
     }
-
     
     // Removes gimmick effects when the the bomb isn't active
     private void OnDestroy() {

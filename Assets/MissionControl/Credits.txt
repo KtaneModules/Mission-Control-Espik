@@ -2,6 +2,8 @@ Edgework Read: Who Wants to be a Millionaire
 InEffect Sound: The Chase GSN
 Good & Bad Chime: Deltarune Chapter 2
 Mechanisms Clock: Who Wants to be a Millionaire
+Golden Strawberry Sprites: Celeste
+Letters and Number Sounds: Colored Hexabuttons
 
 Manual SVG: Janko
 
