@@ -594,7 +594,7 @@ public class MissionControl : MonoBehaviour {
                     ButtonTransform.localEulerAngles = new Vector3(0f, 0f, 90f);
                 }
             }
-            if (solveCount == 49 && goldenActive && goldenPresent) {
+            if (solveCount == Bomb.GetSolvableModuleIDs().Count() && goldenActive && goldenPresent) {
                 goldenPresent = false;
                 StartCoroutine(GoldenCollect());
             }
