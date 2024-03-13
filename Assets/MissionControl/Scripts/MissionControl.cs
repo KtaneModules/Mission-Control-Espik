@@ -124,9 +124,7 @@ public class MissionControl : MonoBehaviour {
     private const int BLINDMODS = 47; // 47
 
     // The Father of the Abyss
-    private const float ABYSSTIME = 12000.0f; // 12000
-    private const int ABYSSMODS = 47; // 47
-
+    private float abyssTime = 12000.0f;
 
     // Mod settings
     private MissionControlSettings Settings;
@@ -223,6 +221,7 @@ public class MissionControl : MonoBehaviour {
             Debug.LogFormat("[Mission Control #{0}] Found mission: \"The Father of the Abyss\".", moduleId);
             missionFound = true;
             mode = 9;
+            abyssTime = Bomb.GetTime();
             break;
 
         case "mod_theBombsBlanMade_mountain": //The Mountain
@@ -575,7 +574,7 @@ public class MissionControl : MonoBehaviour {
             break;
         
         case 9: // The Father of the Abyss
-            if (!bombSolved && Bomb.GetSolvedModuleNames().Count() >= ABYSSMODS) {
+            if (!bombSolved && Bomb.GetSolvedModuleNames().Count() >= Bomb.GetModuleNames().Count()) {
                 StartCoroutine(FadeOutBlack(10.0f));
                 bombSolved = true;
             }
@@ -1019,10 +1018,13 @@ public class MissionControl : MonoBehaviour {
     }
 
     // Fades in the black screen
-    private IEnumerator FadeInBlack(float amplifier, bool exponential, float speed = 1.0f / ABYSSTIME) {
+    private IEnumerator FadeInBlack(float amplifier, bool exponential, float speed = 1.0f) {
         if (postProcess != null) {
             DestroyImmediate(postProcess);
         }
+
+        if (mode == 9)
+            speed = 1.0f / abyssTime;
 
         postProcess = cameraPos.gameObject.AddComponent<CameraPostProcess>();
         postProcess.PostProcessMaterial = new Material(VignetteMaterial);
