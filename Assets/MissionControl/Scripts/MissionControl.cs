@@ -463,7 +463,7 @@ public class MissionControl : MonoBehaviour {
             if (modID == "MissionControl")
             {
                 if (text == "HELP")
-                    text = TwitchHelpMessage.ToUpper().Replace("!{0} ", "");
+                    text = TwitchHelpMessage.ToUpper().Replace("!{0} ", "").Replace(" | !{0} COUNTDOWN <1-20> [PRESSES THE BUTTON WHEN THE COUNTDOWN TIMER IS THE SPECIFIED NUMBER ON PRECISE INSTABILITY]", "");
                 else
                     StartCoroutine(HandleCommand(null, text, modID));
             }
