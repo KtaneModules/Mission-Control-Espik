@@ -363,7 +363,8 @@ public class MissionControl : MonoBehaviour {
         for (int i = 0; i < transform.parent.childCount; i++)
         {
             Transform componentTransform = transform.parent.GetChild(i);
-            if (componentTransform.GetComponent<KMBombModule>() != null)
+            KMBombModule bombModule = componentTransform.GetComponent<KMBombModule>();
+            if (bombModule != null)
             {
                 GameObject cube = Instantiate(fakeCubeSel, componentTransform);
                 cube.transform.localPosition = componentTransform.localPosition;
@@ -376,12 +377,25 @@ public class MissionControl : MonoBehaviour {
                 modSel.ChildRowLength = 1;
                 modSel.UpdateChildrenProperly();
                 componentTransform.GetComponent(ReflectionHelper.FindGameType("Selectable")).SetValue("Parent", parentFace);
-                modSel.OnFocus += delegate () {
-                    selectedModule = componentTransform.gameObject;
-                };
-                modSel.OnDefocus += delegate () {
-                    selectedModule = null;
-                };
+                if (bombModule.ModuleType == "Jailbreak")
+                {
+                    modSel.OnFocus = delegate () {
+                        selectedModule = componentTransform.gameObject;
+                    };
+                    modSel.OnDefocus = delegate () {
+                        selectedModule = null;
+                    };
+                    componentTransform.gameObject.GetComponent(ReflectionHelper.FindType(modIDToScript[bombModule.ModuleType], modIDToAssembly[bombModule.ModuleType])).SetValue("Focused", false);
+                }
+                else
+                {
+                    modSel.OnFocus += delegate () {
+                        selectedModule = componentTransform.gameObject;
+                    };
+                    modSel.OnDefocus += delegate () {
+                        selectedModule = null;
+                    };
+                }
             }
         }
         if (SystemInfo.operatingSystem.ToLower().Contains("windows"))
