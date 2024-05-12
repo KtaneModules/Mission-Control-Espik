@@ -7,6 +7,8 @@ using UnityEngine;
 using KModkit;
 using System.Text.RegularExpressions;
 using Wawa.DDL;
+using UnityEngine.Windows.Speech;
+using UnityEngine.UI;
 
 public class MissionControl : MonoBehaviour {
     public KMAudio Audio;
@@ -56,6 +58,7 @@ public class MissionControl : MonoBehaviour {
      * 8: Flyer's Manual Curse / Flyer's Alternative Manual Curse
      * 9: The Father of the Abyss
      * 10: The Mountain / The Mountain B-Side
+     * 11: Command Prompt
      */
 
 
@@ -125,6 +128,118 @@ public class MissionControl : MonoBehaviour {
 
     // The Father of the Abyss
     private float abyssTime = 12000.0f;
+
+    // Command Prompt
+    public GameObject fakeCubeSel;
+    public GameObject processingLED;
+    public GameObject textBacking;
+    public Image textBackingImg;
+    public Text overlayText;
+    public Color textBackingColor;
+    private DictationRecognizer dictationRecognizer;
+    private Dictionary<string, string> modIDToScript = new Dictionary<string, string>()
+    {
+        { "KeypadV2", "AdvancedKeypad" },
+        { "spwiz3DMaze", "ThreeDMazeModule" },
+        { "SimonScreamsModule", "SimonScreamsModule" },
+        { "CheapCheckoutModule", "CheapCheckoutModule" },
+        { "YahtzeeModule", "YahtzeeModule" },
+        { "visual_impairment", "VisualImpairment" },
+        { "wire", "wireScript" },
+        { "TheDigitModule", "TheDigitScript" },
+        { "krazyTalk", "krazyTalkScript" },
+        { "calcModule", "calcModuleScript" },
+        { "PrimeChecker", "PrimeCheckerScript" },
+        { "bootTooBig", "bootTooBigScript" },
+        { "KritHoldUps", "HoldUpsScript" },
+        { "polygons", "polygons" },
+        { "Negativity", "NegativityScript" },
+        { "Jailbreak", "Jailbreak" },
+        { "colorNumbers", "colorNumberCode" },
+        { "GSPentabutton", "PentabuttonScript" },
+        { "BaybayinWords", "BaybayinWords" },
+        { "symbolicCoordinates", "symbolicCoordinatesScript" },
+        { "doubleScreenModule", "DoubleScreenScript" },
+        { "notCrazyTalk", "NCTScript" },
+        { "Words", "Words" },
+        { "insaIlo", "InsaIloScript" },
+        { "quizbowl", "QuizbowlScript" },
+        { "shogiIdentification", "ShogiIdentificationScript" },
+        { "PurchasingProperties", "PurchasingPropertiesGameplay" },
+        { "reverseMorse", "reverseMorseScript" },
+        { "InnerConnectionsModule", "InnerConnectionsScript" },
+        { "invisymbol", "InvisymbolScript" },
+        { "MaroonButtonModule", "MaroonButtonScript" },
+        { "RedButtonModule", "RedButtonScript" },
+        { "GrayButtonModule", "GrayButtonScript" },
+        { "presidentialElections", "presidentialElectionsScript" },
+        { "USACycle", "USACycle" },
+        { "handTurkey", "handTurkey" },
+        { "xelWhackTheCops", "WhackTheCops" },
+        { "doofenshmirtzEvilIncModule", "DoofenshmirtzEvilIncScript" },
+        { "Patterns", "Patterns" },
+        { "tripleTermModule", "TripleTermScript" },
+        { "jobApplication", "JobApplicationScript" },
+        { "HaikuModule", "HaikuScript" },
+        { "surveySays", "SurveySays" },
+        { "BattleshipModule", "BattleshipModule" },
+        { "whiteout", "whiteoutScript" },
+        { "HexiEvilFMN", "EvilMemory" }
+    };
+    private Dictionary<string, string> modIDToAssembly = new Dictionary<string, string>()
+    {
+        { "KeypadV2", "HexiAdvancedBaseModules" },
+        { "spwiz3DMaze", "3DMaze" },
+        { "SimonScreamsModule", "SimonScreams" },
+        { "CheapCheckoutModule", "CheapCheckoutModule" },
+        { "YahtzeeModule", "Yahtzee" },
+        { "visual_impairment", "visual_impairment" },
+        { "wire", "wire" },
+        { "TheDigitModule", "TheDigitModule" },
+        { "krazyTalk", "krazyTalk" },
+        { "calcModule", "calcModule" },
+        { "PrimeChecker", "PrimeChecker" },
+        { "bootTooBig", "bootTooBig" },
+        { "KritHoldUps", "KritHoldUps" },
+        { "polygons", "polygons" },
+        { "Negativity", "Negativity" },
+        { "Jailbreak", "TriviaMurderPartyPack" },
+        { "colorNumbers", "colorNumbers" },
+        { "GSPentabutton", "GSPentabutton" },
+        { "BaybayinWords", "BaybayinWords" },
+        { "symbolicCoordinates", "symbolicCoordinates" },
+        { "doubleScreenModule", "doubleScreenModule" },
+        { "notCrazyTalk", "notMods" },
+        { "Words", "TriviaMurderPartyPack" },
+        { "insaIlo", "insaIlo" },
+        { "quizbowl", "quizbowl" },
+        { "shogiIdentification", "shogiIdentification" },
+        { "PurchasingProperties", "PurchasingProperties" },
+        { "reverseMorse", "reverseMorse" },
+        { "InnerConnectionsModule", "InnerConnections" },
+        { "invisymbol", "invisymbol" },
+        { "MaroonButtonModule", "BunchOfButtonsPack" },
+        { "RedButtonModule", "BunchOfButtonsPack" },
+        { "GrayButtonModule", "BunchOfButtonsPack" },
+        { "presidentialElections", "presidentialElections" },
+        { "USACycle", "USACycle" },
+        { "handTurkey", "handTurkey" },
+        { "xelWhackTheCops", "xelWhackTheCops" },
+        { "doofenshmirtzEvilIncModule", "doofenshmirtzEvilIncModule" },
+        { "Patterns", "TriviaMurderPartyPack" },
+        { "tripleTermModule", "familiarFacesModules" },
+        { "jobApplication", "jobApplication" },
+        { "HaikuModule", "HaikuModule" },
+        { "surveySays", "surveySays" },
+        { "BattleshipModule", "Battleship" },
+        { "whiteout", "whiteout" },
+        { "HexiEvilFMN", "HexiCruelFMN" }
+    };
+    private GameObject selectedModule = null;
+    private Coroutine displayText = null;
+    private string[] reservedWords = { " DASH ", " DOT ", " PLUS ", " MINUS ", " ZERO ", " ONE ", " TWO ", " THREE ", " FOUR ", " FIVE ", " SIX ", " SEVEN ", " EIGHT ", " NINE ", " NOTHING ", " SPACE " };
+    private string[] reservedWordsReplacements = { " - ", " . ", " + ", " - ", " 0 ", " 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 ", " 9 ", "", " " };
+    private bool processingCmd;
 
     // Mod settings
     private MissionControlSettings Settings;
@@ -233,7 +348,264 @@ public class MissionControl : MonoBehaviour {
             goldenPresent = true;
             StartCoroutine(AnimateGolden());
             break;
+
+        case "mod_eXishMissions_cmdprompt": // Command Prompt
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Command Prompt\".", moduleId);
+            missionFound = true;
+            mode = 11;
+            break;
         }
+    }
+
+    // Sets up everything for Command Prompt
+    private void InitCmdPrompt()
+    {
+        for (int i = 0; i < transform.parent.childCount; i++)
+        {
+            Transform componentTransform = transform.parent.GetChild(i);
+            if (componentTransform.GetComponent<KMBombModule>() != null)
+            {
+                GameObject cube = Instantiate(fakeCubeSel, componentTransform);
+                cube.transform.localPosition = componentTransform.localPosition;
+                cube.transform.localEulerAngles = componentTransform.localEulerAngles;
+                KMSelectable modSel = componentTransform.GetComponent<KMSelectable>();
+                KMSelectable cubeSel = cube.GetComponent<KMSelectable>();
+                var parentFace = componentTransform.GetComponent(ReflectionHelper.FindGameType("Selectable")).GetValue<object>("Parent");
+                cubeSel.Parent = modSel;
+                modSel.Children = new KMSelectable[] { cubeSel };
+                modSel.ChildRowLength = 1;
+                modSel.UpdateChildrenProperly();
+                componentTransform.GetComponent(ReflectionHelper.FindGameType("Selectable")).SetValue("Parent", parentFace);
+                modSel.OnFocus += delegate () {
+                    selectedModule = componentTransform.gameObject;
+                };
+                modSel.OnDefocus += delegate () {
+                    selectedModule = null;
+                };
+            }
+        }
+        if (SystemInfo.operatingSystem.ToLower().Contains("windows"))
+            StartDictationEngine();
+        else
+        {
+            Debug.LogFormat("[Mission Control #{0}] DictationRecognizer error: GET_A_WINDOWS_COMPUTER_ERROR.", moduleId);
+            flickerText = true;
+            ButtonText.text = "VOICE\nERROR";
+            StartCoroutine(FlickerTextRoutine());
+        }
+    }
+
+    // Creates the voice recognition system for Command Prompt
+    private void StartDictationEngine()
+    {
+        dictationRecognizer = new DictationRecognizer();
+        dictationRecognizer.DictationResult += DictationRecognizer_OnDictationResult;
+        dictationRecognizer.DictationComplete += DictationRecognizer_OnDictationComplete;
+        dictationRecognizer.DictationError += DictationRecognizer_OnDictationError;
+        dictationRecognizer.Start();
+    }
+
+    // Destroys the voice recognition system for Command Prompt
+    private void CloseDictationEngine()
+    {
+        if (dictationRecognizer != null)
+        {
+            dictationRecognizer.DictationComplete -= DictationRecognizer_OnDictationComplete;
+            dictationRecognizer.DictationResult -= DictationRecognizer_OnDictationResult;
+            dictationRecognizer.DictationError -= DictationRecognizer_OnDictationError;
+            if (dictationRecognizer.Status == SpeechSystemStatus.Running)
+            {
+                dictationRecognizer.Stop();
+            }
+            dictationRecognizer.Dispose();
+        }
+    }
+
+    // Determines if the voice recognition system for Command Prompt needs a restart or throws a fatal error
+    private void DictationRecognizer_OnDictationComplete(DictationCompletionCause completionCause)
+    {
+        switch (completionCause)
+        {
+            case DictationCompletionCause.TimeoutExceeded:
+            case DictationCompletionCause.PauseLimitExceeded:
+            case DictationCompletionCause.Canceled:
+            case DictationCompletionCause.Complete:
+                // Restart required
+                CloseDictationEngine();
+                StartDictationEngine();
+                break;
+            case DictationCompletionCause.UnknownError:
+            case DictationCompletionCause.AudioQualityFailure:
+            case DictationCompletionCause.MicrophoneUnavailable:
+            case DictationCompletionCause.NetworkFailure:
+                // Fatal error
+                CloseDictationEngine();
+                Debug.LogFormat("[Mission Control #{0}] DictationRecognizer encountered a fatal error.", moduleId);
+                flickerText = true;
+                ButtonText.text = "VOICE\nERROR";
+                StartCoroutine(FlickerTextRoutine());
+                break;
+        }
+    }
+
+    // Runs whenever a command is successfully heard on Command Prompt
+    private void DictationRecognizer_OnDictationResult(string text, ConfidenceLevel confidence)
+    {
+        if (selectedModule != null && !processingCmd)
+        {
+            string modID = selectedModule.GetComponent<KMBombModule>().ModuleType;
+            text = " " + text.ToUpper() + " ";
+            text = text.Replace(":00", "").Replace("MR.", "MR").Replace("COL.", "COL");
+            for (int i = 0; i < reservedWords.Length; i++)
+                text = ReplaceAllInstances(text, reservedWords[i], reservedWordsReplacements[i]);
+            text = text.Trim();
+            Debug.LogFormat("<Mission Control #{0}> Received command \"{1}\" for \"{2}\".", moduleId, text, modID);
+            if (modID == "MissionControl")
+            {
+                if (text == "HELP")
+                    text = TwitchHelpMessage.ToUpper().Replace("!{0} ", "").Replace(" | !{0} COUNTDOWN <1-20> [PRESSES THE BUTTON WHEN THE COUNTDOWN TIMER IS THE SPECIFIED NUMBER ON PRECISE INSTABILITY]", "");
+                else
+                    StartCoroutine(HandleCommand(null, text, modID));
+            }
+            else
+            {
+                object component = selectedModule.GetComponent(ReflectionHelper.FindType(modIDToScript[modID], modIDToAssembly[modID]));
+                if (text == "HELP")
+                {
+                    if (modID == "YahtzeeModule")
+                        text = component.GetValue<string>("TwitchHelpMessage").ToUpper().Replace("!{0} ", "").Replace(" | DONE [SOLVE]", "");
+                    else
+                        text = component.GetValue<string>("TwitchHelpMessage").ToUpper().Replace("!{0} ", "");
+                }
+                else
+                    StartCoroutine(HandleCommand(component, text, modID));
+            }
+            if (displayText != null)
+            {
+                StopCoroutine(displayText);
+                overlayText.color = Color.green;
+                textBackingImg.color = textBackingColor;
+            }
+            displayText = StartCoroutine(DisplayCmdPromptText(text));
+        }
+    }
+
+    // Runs whenever the voice recognition system on Command Prompt throws an error
+    private void DictationRecognizer_OnDictationError(string error, int hresult)
+    {
+        Debug.LogFormat("[Mission Control #{0}] DictationRecognizer error: \"{1}\".", moduleId, error);
+        flickerText = true;
+        ButtonText.text = "VOICE\nERROR";
+        StartCoroutine(FlickerTextRoutine());
+    }
+
+    // Replaces all instances of a word for commands in Command Prompt
+    private string ReplaceAllInstances(string text, string replace1, string replace2)
+    {
+        while (text.Contains(replace1))
+            text = text.Replace(replace1, replace2);
+        return text;
+    }
+
+    // Handles each ran command on Command Prompt, some of this code may not be necessary for this bomb but better safe than sorry
+    private IEnumerator HandleCommand(object component, string text, string modID)
+    {
+        processingCmd = true;
+        int strikeCt = Bomb.GetStrikes();
+        int solves = Bomb.GetSolvedModuleNames().Count();
+        IEnumerator routine = null;
+        bool simple = false;
+        try
+        {
+            routine = component == null ? ProcessTwitchCommand(text.ToLower()) : component.CallMethod<IEnumerator>("ProcessTwitchCommand", text.ToLower());
+        } catch (InvalidCastException) { simple = true; }
+        if (simple)
+        {
+            IEnumerable<KMSelectable> btns = component.CallMethod<IEnumerable<KMSelectable>>("ProcessTwitchCommand", text.ToLower());
+            foreach (KMSelectable btn in btns)
+            {
+                btn.OnInteract();
+                yield return new WaitForSeconds(.1f);
+                if (btn.OnInteractEnded != null)
+                    btn.OnInteractEnded();
+
+                if (strikeCt != Bomb.GetStrikes() || solves != Bomb.GetSolvedModuleNames().Count())
+                    break;
+            }
+        }
+        else
+        {
+            if (routine == null)
+            {
+                processingCmd = false;
+                yield break;
+            }
+            while (true)
+            {
+                bool? moved = routine.MoveNext();
+                if (moved.HasValue && !moved.Value)
+                    break;
+
+                object currentObj = routine.Current;
+                if (currentObj is IEnumerable<KMSelectable>)
+                {
+                    foreach (var selectable in (IEnumerable<KMSelectable>)currentObj)
+                    {
+                        selectable.OnInteract();
+                        yield return new WaitForSeconds(.1f);
+                        if (selectable.OnInteractEnded != null)
+                            selectable.OnInteractEnded();
+
+                        if (strikeCt != Bomb.GetStrikes() || solves != Bomb.GetSolvedModuleNames().Count())
+                            break;
+                    }
+                }
+                else if (currentObj is string)
+                {
+                    Match match;
+                    float waitTime;
+                    string currentString = (string)currentObj;
+                    if (currentString.RegexMatch(@"^(sendtochaterror!h) +(\S(?:\S|\s)*)$"))
+                        break;
+                    else if (currentString.RegexMatch(@"^trycancel((?: (?:.|\\n)+)?)$"))
+                    {
+                        yield return null;
+                        continue;
+                    }
+                    else if (currentString.RegexMatch(out match, "^trywaitcancel ([0-9]+(?:\\.[0-9])?)((?: (?:.|\\n)+)?)$") && float.TryParse(match.Groups[1].Value, out waitTime))
+                        yield return new WaitForSeconds(waitTime);
+                }
+                else
+                    yield return currentObj;
+
+                if (strikeCt != Bomb.GetStrikes() || solves != Bomb.GetSolvedModuleNames().Count())
+                    break;
+            }
+        }
+        if (strikeCt != Bomb.GetStrikes() || solves != Bomb.GetSolvedModuleNames().Count())
+        {
+            if (modID == "krazyTalk" && component.GetValue<bool>("_isHolding"))
+                component.SetValue("_isHolding", false);
+        }
+        processingCmd = false;
+    }
+
+    // Displays command text on the user's screen temporarily
+    private IEnumerator DisplayCmdPromptText(string text)
+    {
+        overlayText.text = text;
+        yield return new WaitForSeconds(5f);
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime;
+            overlayText.color = Color.Lerp(Color.green, Color.clear, t);
+            textBackingImg.color = Color.Lerp(textBackingColor, Color.clear, t);
+            yield return null;
+        }
+        overlayText.text = "";
+        overlayText.color = Color.green;
+        displayText = null;
     }
 
 
@@ -606,6 +978,19 @@ public class MissionControl : MonoBehaviour {
                 StartCoroutine(DetonateBomb(5));
             }
             break;
+        case 11: // Command Prompt
+            if (processingCmd)
+                processingLED.SetActive(true);
+            else
+                processingLED.SetActive(false);
+            if (overlayText.text != "")
+                textBacking.SetActive(true);
+            else
+            {
+                textBacking.SetActive(false);
+                textBackingImg.color = textBackingColor;
+            }
+            break;
         }
     }
 
@@ -898,6 +1283,9 @@ public class MissionControl : MonoBehaviour {
                     break;
                 case 9: // The Father of the Abyss
                     StartCoroutine(FadeInBlack(10.0f, true));
+                    break;
+                case 11: // Command Prompt
+                    InitCmdPrompt();
                     break;
             }
         }
@@ -1197,6 +1585,8 @@ public class MissionControl : MonoBehaviour {
             DestroyImmediate(postProcess);
             postProcess = null;
         }
+
+        CloseDictationEngine();
     }
 
     // Module solves
@@ -1224,15 +1614,53 @@ public class MissionControl : MonoBehaviour {
 
     // Twitch Plays command handler - by eXish
     #pragma warning disable 414
-    private readonly string TwitchHelpMessage = @"!{0} press <##> [Presses the button when the seconds digits of the bomb's timer are '##']";
+    private readonly string TwitchHelpMessage = @"!{0} press (##) [Presses the button (optionally when the seconds digits of the bomb's timer are '##')] | !{0} countdown <1-20> [Presses the button when the countdown timer is the specified number on Precise Instability]";
     #pragma warning restore 414
     IEnumerator ProcessTwitchCommand(string command)
     {
         string[] parameters = command.Split(' ');
-        if (Regex.IsMatch(parameters[0], @"^\s*press\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        if (Regex.IsMatch(parameters[0], @"^\s*countdown\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
         {
             if (parameters.Length == 1)
                 yield return "sendtochaterror Please specify when to press the button!";
+            else if (parameters.Length > 2)
+                yield return "sendtochaterror Too many parameters!";
+            else
+            {
+                int time = -1;
+                if (!int.TryParse(parameters[1], out time))
+                {
+                    yield return "sendtochaterror!f The specified number '" + parameters[1] + "' is invalid!";
+                    yield break;
+                }
+                if (time < 1 || time > 20)
+                {
+                    yield return "sendtochaterror The specified number '" + parameters[1] + "' is out of range 1-20!";
+                    yield break;
+                }
+                if (!franticMode)
+                {
+                    yield return "sendtochaterror The countdown timer is not currently active!";
+                    yield break;
+                }
+                yield return null;
+                while (time != displayedSecond) yield return "trycancel Halted waiting to press the button due to a cancel request.";
+                ButtonSelectable.OnInteract();
+            }
+            yield break;
+        }
+        if (Regex.IsMatch(parameters[0], @"^\s*press\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        {
+            if (parameters.Length == 1)
+            {
+                if (!canPressButton)
+                {
+                    yield return "sendtochaterror The button cannot be pressed right now!";
+                    yield break;
+                }
+                yield return null;
+                ButtonSelectable.OnInteract();
+            }
             else if (parameters.Length > 2)
                 yield return "sendtochaterror Too many parameters!";
             else
@@ -1255,7 +1683,7 @@ public class MissionControl : MonoBehaviour {
                 }
                 if (!canPressButton)
                 {
-                    yield return "sendtochaterror The button cannot be pressed yet!";
+                    yield return "sendtochaterror The button cannot be pressed right now!";
                     yield break;
                 }
                 yield return null;
@@ -1268,7 +1696,46 @@ public class MissionControl : MonoBehaviour {
     // Twitch Plays autosolver - by eXish
     IEnumerator TwitchHandleForcedSolve()
     {
-        while ((Bomb.GetSerialNumberNumbers().Sum() != Math.Floor(Bomb.GetTime()) % 60) || !canPressButton) yield return true;
-        ButtonSelectable.OnInteract();
+        switch (mode)
+        {
+            case 0:
+            case 1:
+            case 3:
+            case 7:
+            case 8:
+            case 9:
+            case 11:
+                while (Bomb.GetSerialNumberNumbers().Sum() != Math.Floor(Bomb.GetTime()) % 60) yield return true;
+                ButtonSelectable.OnInteract();
+                break;
+            case 2:
+                while (!moduleSolved) yield return true;
+                break;
+            case 4:
+                while (!moduleSolved)
+                {
+                    if (WISH_THRESHOLDS[buttonPresses] > Bomb.GetSolvedModuleNames().Count())
+                        yield return true;
+                    else
+                    {
+                        ButtonSelectable.OnInteract();
+                        yield return new WaitForSeconds(.1f);
+                    }
+                }
+                break;
+            case 5:
+                while (franticMode || Bomb.GetSerialNumberNumbers().Sum() != Math.Floor(Bomb.GetTime()) % 60) yield return true;
+                ButtonSelectable.OnInteract();
+                break;
+            case 6:
+                if (canPressButton)
+                    ButtonSelectable.OnInteract();
+                while (!moduleSolved) yield return true;
+                break;
+            case 10:
+                ButtonSelectable.OnInteract();
+                yield return new WaitForSeconds(.1f);
+                break;
+        }
     }
 }

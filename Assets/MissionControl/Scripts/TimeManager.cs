@@ -37,12 +37,19 @@ public static class TimerRate {
 }
 
 public static class ReflectionHelper {
+    public const string GameAssembly = "Assembly-CSharp";
+
     public static Type FindType(string fullName) {
         return AppDomain.CurrentDomain.GetAssemblies().SelectMany(GetSafeTypes).FirstOrDefault(t => t.FullName == null ? false : t.FullName.Equals(fullName));
     }
 
     public static Type FindType(string fullName, string assemblyName) {
         return AppDomain.CurrentDomain.GetAssemblies().SelectMany(GetSafeTypes).FirstOrDefault(t => t.FullName == null ? false : t.FullName.Equals(fullName) && t.Assembly.GetName().Name.Equals(assemblyName));
+    }
+
+    public static Type FindGameType(string fullName)
+    {
+        return FindType(fullName, GameAssembly);
     }
 
     public static IEnumerable<Type> GetSafeTypes(this Assembly assembly) {
