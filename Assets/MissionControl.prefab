@@ -11617,6 +11617,8 @@ MonoBehaviour:
   ButtonText: {fileID: 102126913768554162}
   ButtonBigText: {fileID: 102014998515971558}
   ButtonTransform: {fileID: 4576347131118834}
+  ModuleBorder: {fileID: 23369199293164158}
+  ModuleButton: {fileID: 23975672407410368}
   Cover:
   - {fileID: 1771947945009720}
   - {fileID: 1491466673117930}
@@ -11688,6 +11690,30 @@ MonoBehaviour:
   textBackingImg: {fileID: 114382734283792626}
   overlayText: {fileID: 114044555000172838}
   textBackingColor: {r: 0, g: 0, b: 0, a: 0.54901963}
+  StageBorderMaterials:
+  - {fileID: 2100000, guid: f094e5d4e7228a649abbccaa8b3e6c49, type: 2}
+  - {fileID: 2100000, guid: 04c125e5ec1c0ee4c94914e4ad0aba2b, type: 2}
+  - {fileID: 2100000, guid: 4d6e17e9149c1374d8fee9a0838314c9, type: 2}
+  - {fileID: 2100000, guid: c8b21e2bd27c0cd4e867603cfb81345b, type: 2}
+  - {fileID: 2100000, guid: 35674116427abca4ebb056692975421b, type: 2}
+  - {fileID: 2100000, guid: cf6858b92d24b7648822fea5afc28620, type: 2}
+  - {fileID: 2100000, guid: 9e55527c21a55c841bef8a0b15f4bac4, type: 2}
+  - {fileID: 2100000, guid: 15ce7faec1916214fbaf4238602c7b32, type: 2}
+  - {fileID: 2100000, guid: 2151a543a727dee409ea7b829da9cc4f, type: 2}
+  - {fileID: 2100000, guid: 0349a497e325c604384907c6177c650c, type: 2}
+  - {fileID: 2100000, guid: 551e8261e5ea8c843a306a6cb2967143, type: 2}
+  StageButtonMaterials:
+  - {fileID: 2100000, guid: b8535722cebe9684dbc6de7c64f6dfaa, type: 2}
+  - {fileID: 2100000, guid: 384f3da71acaa394c8989e47ca72725c, type: 2}
+  - {fileID: 2100000, guid: 1b5de1672ad0a294f80c6ec1143136e6, type: 2}
+  - {fileID: 2100000, guid: 469a4bec71ecaed439a54c439082499b, type: 2}
+  - {fileID: 2100000, guid: cf4594dccb3e01742862e20d891d5d9a, type: 2}
+  - {fileID: 2100000, guid: e8e2dbc6d310ef245a845fb224273366, type: 2}
+  - {fileID: 2100000, guid: 6d290dd2cab7c5644a62f06c847ea4b1, type: 2}
+  - {fileID: 2100000, guid: 8466b43ad6a55164b88a6638202b3069, type: 2}
+  - {fileID: 2100000, guid: d792b1c0b88d57546811029666f50d9c, type: 2}
+  - {fileID: 2100000, guid: cfe13c014f18e194485a5dc66050c8b2, type: 2}
+  - {fileID: 2100000, guid: d8a0955cfb1274d43a47aa3d348cec1b, type: 2}
 --- !u!114 &114283732167012424
 MonoBehaviour:
   m_ObjectHideFlags: 1

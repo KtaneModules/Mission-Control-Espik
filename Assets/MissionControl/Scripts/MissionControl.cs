@@ -20,6 +20,9 @@ public class MissionControl : MonoBehaviour {
     public TextMesh ButtonBigText;
     public Transform ButtonTransform;
 
+    public MeshRenderer ModuleBorder;
+    public MeshRenderer ModuleButton;
+
     // From Mystery Module
     public GameObject[] Cover;
     public GameObject[] PivotRight;
@@ -59,6 +62,7 @@ public class MissionControl : MonoBehaviour {
      * 9: The Father of the Abyss
      * 10: The Mountain / The Mountain B-Side
      * 11: Command Prompt
+     * 12: Defrost
      */
 
 
@@ -241,6 +245,20 @@ public class MissionControl : MonoBehaviour {
     private string[] reservedWordsReplacements = { " - ", " . ", " + ", " - ", " 0 ", " 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 ", " 9 ", "", " " };
     private bool processingCmd;
 
+    // Defrost
+    public Material[] StageBorderMaterials;
+    public Material[] StageButtonMaterials;
+
+    private float[] timerPercents = { 0.2f, 0.1f, 0.1f, 0.1f, 0.05f, 0.05f, 0.1f, 0.1f, 0.1f, 0.05f };
+    private int defrostStage = 0;
+    private float maxTime = 0.0f;
+
+    private float[,] timeLost = { { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 11.0f },
+                                  { 0.0f, 63.5f, 44.103f, 33.895f, 23.321f, 662.0f / 37.0f, 14.587f, 689.0f / 64.0f, 707.0f / 82.0f, 7.25f, 7.25f},
+                                  { 0.0f, 16.0f, 11.345f, 8.895f, 89.0f / 14.0f, 4.947f, 13.0f / 3.0f, 107.0f / 32.0f, 116.0f / 41.0f, 2.5f, 2.5f},
+                                  { 0.0f, 9.75f, 7.034f, 5.605f, 4.125f, 3.3026f, 53.0f / 18.0f, 303.0f / 128.0f, 47.0f / 22.0f, 1.875f, 1.875f},
+                                  { 0.0f, 3.0f, 31.0f / 11.0f, 8.0f / 3.0f, 17.0f / 7.0f, 2.25f, 19.0f / 9.0f, 21.0f / 11.0f, 23.0f / 13.0f, 5.0f / 3.0f, 5.0f / 3.0f} };
+
     // Mod settings
     private MissionControlSettings Settings;
     sealed class MissionControlSettings {
@@ -353,6 +371,15 @@ public class MissionControl : MonoBehaviour {
             Debug.LogFormat("[Mission Control #{0}] Found mission: \"Command Prompt\".", moduleId);
             missionFound = true;
             mode = 11;
+            break;
+
+        case "mod_espikStellarMissions_defrost": // Defrost
+            Debug.LogFormat("[Mission Control #{0}] Found mission: \"Defrost\".", moduleId);
+            missionFound = true;
+            mode = 12;
+            maxTime = Bomb.GetTime();
+            ModuleButton.material = StageButtonMaterials[0];
+            ModuleBorder.material = StageBorderMaterials[0];
             break;
         }
     }
@@ -1005,6 +1032,27 @@ public class MissionControl : MonoBehaviour {
                 textBackingImg.color = textBackingColor;
             }
             break;
+
+        case 12: // Defrost
+            if (!bombSolved && Bomb.GetSolvedModuleNames().Count() >= Bomb.GetModuleNames().Count()) {
+                bombSolved = true;
+            }
+
+            else {
+                if (Mathf.Floor(Bomb.GetTime()) != currentSecond) {
+                    currentSecond = Mathf.Floor(Bomb.GetTime());
+
+                    int strikes = Math.Min(4, Bomb.GetStrikes());
+                    if (timeLost[strikes, defrostStage] != 0.0f) {
+                        if (ZenModeActive)
+                            TimeRemaining.FromModule(Module, Bomb.GetTime() + 1 / timeLost[strikes, defrostStage]);
+
+                        else
+                            TimeRemaining.FromModule(Module, Bomb.GetTime() - 1 / timeLost[strikes, defrostStage]);
+                    }
+                }
+            }
+            break;
         }
     }
 
@@ -1301,6 +1349,9 @@ public class MissionControl : MonoBehaviour {
                 case 11: // Command Prompt
                     InitCmdPrompt();
                     break;
+                case 12: // Defrost
+                    StartCoroutine(InitDefrost());
+                    break;
             }
         }
 
@@ -1325,7 +1376,10 @@ public class MissionControl : MonoBehaviour {
     // Rotates the button so the texture animates
     private IEnumerator AnimateButton() {
         while (true) {
-            if (franticMode)
+            if (mode == 12)
+                ButtonTransform.Rotate(new Vector3(0.025f * defrostStage, 0.0f, 0.0f));
+
+            else if (franticMode)
                 ButtonTransform.Rotate(new Vector3(0.25f, 0.0f, 0.0f));
 
             else
@@ -1521,6 +1575,58 @@ public class MissionControl : MonoBehaviour {
         canPressButton = true;
     }
 
+    // Runs the timer for Defrost
+    private IEnumerator InitDefrost() {
+        for (int i = 0; i < timerPercents.Length; i++) {
+            yield return new WaitForSeconds(timerPercents[i] * maxTime);
+
+            defrostStage++;
+            Debug.LogFormat("[Mission Control #{0}] The module has advanced to level {1}.", moduleId, defrostStage);
+            Audio.PlaySoundAtTransform("missionControl_stageAdvance", transform);
+
+            ButtonBigText.text = defrostStage.ToString();
+
+            if (defrostStage == 1) {
+                flickerText = true;
+                StartCoroutine(FlickerTextRoutine());
+            }
+
+            ModuleButton.material = StageButtonMaterials[defrostStage];
+            ModuleBorder.material = StageBorderMaterials[defrostStage];
+        }
+
+        StartCoroutine(InitRainbow());
+    }
+
+    // Recolors the material for Defrost stage 10
+    private IEnumerator InitRainbow() {
+        while (true) {
+            for (float i = 0.0f; i < 20.0f; i++) {
+                StageButtonMaterials[10].color = new Color(1.0f, 0.6f, 0.6f + 0.02f * i);
+                yield return new WaitForSeconds(0.025f);
+            }
+
+            for (float i = 0.0f; i < 20.0f; i++) {
+                StageButtonMaterials[10].color = new Color(1.0f - 0.02f * i, 0.6f + 0.01f * i, 1.0f);
+                yield return new WaitForSeconds(0.025f);
+            }
+
+            for (float i = 0.0f; i < 20.0f; i++) {
+                StageButtonMaterials[10].color = new Color(0.6f, 0.8f + 0.01f * i, 1.0f - 0.02f * i);
+                yield return new WaitForSeconds(0.025f);
+            }
+
+            for (float i = 0.0f; i < 20.0f; i++) {
+                StageButtonMaterials[10].color = new Color(0.6f + 0.02f * i, 1.0f, 0.6f);
+                yield return new WaitForSeconds(0.025f);
+            }
+
+            for (float i = 0.0f; i < 20.0f; i++) {
+                StageButtonMaterials[10].color = new Color(1.0f, 1.0f - 0.02f * i, 0.6f);
+                yield return new WaitForSeconds(0.025f);
+            }
+        }
+    }
 
     // Button is pressed
     private void ButtonPressed() {
@@ -1572,6 +1678,11 @@ public class MissionControl : MonoBehaviour {
         // The Mountain
         else if (mode == 10) {
             Solve();
+        }
+
+        // Defrost
+        else if (mode == 12 && defrostStage == 0) {
+            Debug.LogFormat("[Mission Control #{0}] The button cannot be pressed at this time.", moduleId);
         }
 
         // Unmodified rules
