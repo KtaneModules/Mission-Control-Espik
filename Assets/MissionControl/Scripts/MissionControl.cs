@@ -497,6 +497,8 @@ public class MissionControl : MonoBehaviour {
             string modID = selectedModule.GetComponent<KMBombModule>().ModuleType;
             text = " " + text.ToUpper() + " ";
             text = text.Replace(":00", "").Replace("MR.", "MR").Replace("COL.", "COL");
+            if (modID == "HexiEvilFMN")
+                text = text.Replace("-", "");
             for (int i = 0; i < reservedWords.Length; i++)
                 text = ReplaceAllInstances(text, reservedWords[i], reservedWordsReplacements[i]);
             text = text.Trim();
