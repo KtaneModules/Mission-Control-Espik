@@ -276,6 +276,7 @@ public class MissionControl : MonoBehaviour {
         modConfig.Settings = Settings;
 
         ButtonSelectable.OnInteract += delegate () { ButtonPressed(); return false; };
+        Bomb.OnBombExploded += delegate () { OnDestroy(); };
 
         Module.OnActivate += OnActivate;
 
